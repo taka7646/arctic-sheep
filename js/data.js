@@ -40,3 +40,33 @@ var charParams = {
 		prize: 1000,
 	},
 };
+
+var sheepSequence = {
+   	images: ['img/hituji_1s.png', 'img/hituji_2s.png'],
+   	sequenceList: [
+   			[	// 走るアニメ
+   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   				{wait:250, items:[{image: 1, x:0,y:0}]},
+   			],
+   		],
+};
+var cowSequence = {
+   	images: ['img/ushi_1s.png', 'img/ushi_2s.png'],
+   	sequenceList: [
+   			[	// 走るアニメ
+   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   				{wait:250, items:[{image: 1, x:0,y:0}]},
+   			],
+   		],
+};
+var rabbitSequence = {
+   	images: ['img/usagi_1s.png', 'img/usagi_2s.png'],
+   	sequenceList: [
+   			[	// 走るアニメ
+   				{wait:250, items:[{image: 0, x:0,y:-8}]},
+   				{wait:250, items:[{image: 1, x:0,y:0}]},
+   			],
+   		],
+};
+
+

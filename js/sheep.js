@@ -96,7 +96,6 @@ var UpdateContainer = arc.Class.create({
 	},
 	add: function add(object){
 		this.container.push(object);
-		console.log(this.container);
 	},
 	update: function update(){
 		var self = this;
@@ -143,15 +142,7 @@ var gameMain = arc.Class.create(arc.Game,{
        this.addChild(sheep);
        //this.addChild(cow);
 
-       var cow2 = new AnimeSprite(null, {
-       	images: ['img/ushi_1s.png', 'img/ushi_2s.png'],
-       	sequenceList: [
-       			[
-       				{wait:250, items:[{image: 0, x:0,y:0}]},
-       				{wait:250, items:[{image: 1, x:0,y:0}]},
-       			],
-       		],
-       });
+       var cow2 = new AnimeSprite(null, rabbitSequence);
        cow2.setY(160);
        this.addChild(cow2);
        this.updateContainer.add(cow2);
@@ -163,7 +154,7 @@ var gameMain = arc.Class.create(arc.Game,{
 
 
 window.addEventListener('DOMContentLoaded', function(e){
-    var system = new arc.System(480, 640, 'canvas');
+    var system = new arc.System(640, 960, 'canvas');
     // ゲームインスタンスを登録＆初期化
     system.setGameClass(gameMain, {hp:100, mp:100});
     
@@ -178,5 +169,6 @@ window.addEventListener('DOMContentLoaded', function(e){
     system.load([
     	'img/hituji_1s.png', 'img/hituji_2s.png', 
     	'img/ushi_1s.png', 'img/ushi_2s.png',
+    	'img/usagi_1s.png', 'img/usagi_2s.png',
     ]);
 }, false);
