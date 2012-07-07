@@ -1,160 +1,85 @@
-/**
- * シーケンスアニメーション再生するスプライトオブジェクト .
- * seq = [
- * 			// アニメ種類分の配列
- * 			[	// アニメフレーム(コマ)分の配列
- * 				{
- * 				wait: 10,	// wait frame count
- * 				items:[	// 描画するオブジェクトのリスト
- * 					// image:画像インデックス, x,y 描画オフセット, sx,sy スケール, r:回転角度(rad)
- * 					{image:0, x: 0, y: 0, sx: 1, sy: 1, r: 0},
- * 				],
- * 				}
- * 			],
- * 		]
- */
-var AnimeSprite = arc.Class.create(arc.display.DisplayObject,{
-	/** 画像リスト  */
-	images: [],
-	/** アニメーションシーケンスデータ */
-	sequenceList: [],
-	/** シーケンスインデックス */
-	currentSequence: 0,
-	/** シーケンス内のインデックス */
-	sequenceIndex: 0,
-	/** タイマーカウンタ */
-	sequenceCounter: 0,
-	/** アニメ更新フラグ */
-	isAnimation: true,
 
-	initialize: function(data, params){
-		for(var i=params.images.length-1; i>=0;--i){
-			this.images[i] = arc._system.getImage(params.images[i]);
-		}
-		this.sequenceList = params.sequenceList;
-	},
-	
-	gotoNextSequence: function(){
-		var seq = this.sequenceList[this.currentSequence];
-		var len = seq.length;
-		var	frame = seq[this.sequenceIndex];
-		while(this.sequenceCounter >= frame.wait){
-			this.sequenceCounter -= frame.wait;
-			this.sequenceIndex++;
-			if(this.sequenceIndex >= len){
-				this.sequenceIndex = 0;
-			}
-			frame = seq[this.sequenceIndex];
-		}
-	},
-	
-	/**
-	 * シーケンスあsにメーションを再生する。
-	 */
-	updateAnimation: function(elapsedTime){
-		if(!this.isAnimation){
-			return;
-		}
-		var seq = this.sequenceList[this.currentSequence];
-		var frame = seq[this.sequenceIndex];
-		this.sequenceCounter += elapsedTime;
-		if(this.sequenceCounter >= frame.wait){
-			this.gotoNextSequence();
-		}
-	},
 
-	update: function(elapsedTime){
-		this.updateAnimation(elapsedTime);
-	},
 
-	draw: function(){
-		var seq = this.sequenceList[this.currentSequence];
-		var frame = seq[this.sequenceIndex];
-		for(var i=0,len=frame.items.length; i<len; ++i){
-			var item = frame.items[i];
-			var x = this._x + item.x;
-			var y = this._y + item.y;
-			var sx = isNaN(item.sx)? 1: item.sx;
-			var sy = isNaN(item.sy)? 1: item.sy;
-			var rot = isNaN(item.r)? 0: item.r;
-			sx *= this._scaleX;
-			sy *= this._scaleY;
-			if(sx === 1 && sy === 1){
-				this.images[item.image].draw(x, y, rot);
-			}else{
-				this.images[item.image].drawSize(x, y, sx, sy, 1, rot);
-			}
-		}
-	},
-});
-
-var UpdateContainer = arc.Class.create({
-	container: [],
-	prevTime: 0,
-	initialize: function initialize(){
-		this.prevTime = Date.now();
-	},
-	add: function add(object){
-		this.container.push(object);
-	},
-	update: function update(){
-		var self = this;
-		var now = Date.now();
-		var elapsedTime = now - self.prevTime;
-		for(var i=0,len=self.container.length;i<len;++i){
-			var o = self.container[i];
-			o.update(elapsedTime);
-		}
-		self.prevTime = now;
-	},
-});
+var COURSE_X = 200;
+var COURSE_Y = 50;
+var COURSE_H = 150;
+var COURSE_LENGTH = 1000;
 
 var gameMain = arc.Class.create(arc.Game,{
 	
 	updateContainer: null,
+	screen: null,
+	stage: null,
+	phase: 0,
 	
 	initialize: function initialize(params){
 		this.updateContainer = new UpdateContainer();
-		
-       var sp1 = new arc.display.Sprite(this._system.getImage('img/hituji_1s.png'));
-       var sp2 = new arc.display.Sprite(this._system.getImage('img/hituji_2s.png'));
-       var sheep = new arc.display.MovieClip(12, true);
-       sheep.addChild(sp1, {
-       	1:{x:0, y:0, visible:true, transition:arc.anim.Transition.LINEAR},
-       	5:{x:0, y:0, visible:false},
-       });
-       sheep.addChild(sp2,{
-       	1:{visible:false},
-       	5:{x:0,y:0, visible:true},
-       	10:{x:0,y:0, },
-       });
-       var cow = new arc.display.MovieClip(12,true);
-       cow.addChild(new arc.display.Sprite(this._system.getImage('img/ushi_1s.png')),{
-       	1:{x:0, y:0, visible:true, transition:arc.anim.Transition.LINEAR},
-       	5:{x:0, y:0, visible:false},
-       });
-       cow.addChild(new arc.display.Sprite(this._system.getImage('img/ushi_2s.png')),{
-       	1:{visible:false},
-       	5:{x:0, y:0, visible:true, transition:arc.anim.Transition.LINEAR},
-       	10:{x:0, y:0,},
-       });
-       cow.setY(160);
-       this.addChild(sheep);
-       //this.addChild(cow);
+		this.screen = new arc.display.DisplayObjectContainer();
+//		this.screen._x = -1000;
+		this.addChild(this.screen);
+		this.stage = new arc.display.DisplayObjectContainer();
+		this.screen.addChild(this.stage);
+		var sheep = new Racer({course: 0, animeData:sheepSequence});
+		this.stage.addChild(sheep);	
+		this.updateContainer.add(sheep);
+		// コース枠
+		var c = new arc.display.Shape();
+		c.beginStroke(4,0x000000,1.0);
+		c.drawRect(COURSE_X-2,COURSE_Y-2,COURSE_LENGTH,COURSE_H*2);
+		this.stage.addChild(c);
+		// コースの脇に置く目印
+		for(var i=0; i<10;++i){
+			var p = new arc.display.Shape();
+//			p.beginStroke(1,0x8888ff,1.0);
+			p.beginFill(0x8888ff,1.0);
+			p.drawCircle(10,10,10);
+			p.endFill();
+//			p.endStroke();
+			p._x = COURSE_X + i * COURSE_LENGTH / 10;
+			p._y = COURSE_Y - 25;
+			this.stage.addChild(p);	
+		}
 
-       var cow2 = new AnimeSprite(null, rabbitSequence);
-       cow2.setY(160);
-       this.addChild(cow2);
-       this.updateContainer.add(cow2);
+		var cow2 = new Racer({course:1, animeData:rabbitSequence});
+//		cow2.setY(160);
+		this.stage.addChild(cow2);
+		this.updateContainer.add(cow2);
 	},
 	update: function update(){
 		this.updateContainer.update();
 	},
 });
 
+var Racer = arc.Class.create(AnimeSprite,{
+	pos: 0,
+	cource: 0,
+	initialize: function($super,params){
+		$super(params.animeData);
+		this.course = params.course;
+		this._x = 100;
+	},
+	update: function($super, elapsedTime){
+		var self = this;
+//		self._x = COURSE_LENGTH - self.pos + COURSE_X;
+		self._y = self.course * COURSE_H + COURSE_Y;
+		self.updateAnimation(elapsedTime);
+	},
+});
+
+var atags = document.querySelectorAll("#scroll > a");
+for(var i=0,len=atags.length;i<len;++i){
+	atags[i].addEventListener('click', function(e){
+		var self = this;
+		var v = self.getAttribute("data-value") | 0;
+		e.preventDefault();
+		arc._system._game.stage._x += v;
+		console.log(arc._system._game.stage._x );
+	});
+}
 
 window.addEventListener('DOMContentLoaded', function(e){
-    var system = new arc.System(640, 960, 'canvas');
+    var system = new arc.System(320, 400, 'canvas');
     // ゲームインスタンスを登録＆初期化
     system.setGameClass(gameMain, {hp:100, mp:100});
     
@@ -172,3 +97,4 @@ window.addEventListener('DOMContentLoaded', function(e){
     	'img/usagi_1s.png', 'img/usagi_2s.png',
     ]);
 }, false);
+

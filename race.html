@@ -10,12 +10,26 @@
 		padding: 0;
 		border: 0;
 	}
+	#content{
+		text-align: center;
+	}
+	#scroll{
+		font-size: 16px;
+		font-weight: bold;
+	}
 </style>
 </head>
 <body>
-<canvas id="canvas"></canvas>
+<div id="content">
+	<canvas id="canvas"></canvas>
+	<div id="scroll">
+		<a href="#" data-value="-8">&lt;&lt;</a>
+		<a href="#" data-value="8">&gt;&gt;</a>
+	</div>
+</div>
 <script type="text/javascript" src="js/data.js"></script>
 <script type="text/javascript" src="js/arctic.js"></script>
+<script type="text/javascript" src="js/sprite.js"></script>
 <script type="text/javascript" src="js/sheep.js"></script>
 </body>
 </html>
