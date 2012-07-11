@@ -5,24 +5,54 @@ var COURSE_X = 200;
 var COURSE_Y = 50;
 var COURSE_H = 150;
 var COURSE_LENGTH = 1000;
+var SCREEN_W = 320;
+
+// スクロール制御 & デバッグ表示
+// Textfieldにmixinしている。
+function onUpdateScreenPosition(elapsedTime){
+	var self = this;
+	var game = arc._system._game;
+	var stage = game.stage;
+	var diff = game.racer[0]._x - game.racer[1]._x;
+	var pos = 0;
+	if(diff < 0){
+		diff = Math.abs(diff);
+		if(diff < SCREEN_W*0.8){
+			pos = game.racer[0]._x + diff/2;
+		}else{
+			pos = game.racer[0]._x + SCREEN_W * 0.4;
+		}
+	}else if(diff > 0){
+		if(diff < SCREEN_W*0.5){
+			pos = game.racer[0]._x - diff/2;
+		}else{
+			pos = game.racer[0]._x - SCREEN_W * 0.25;
+		}
+	}else{
+		pos = game.racer[0]._x;
+	}
+	pos = -pos + SCREEN_W / 2;
+	stage._x = pos;
+	self.setText("scroll:"+stage._x + "," + stage._y);
+}
 
 var gameMain = arc.Class.create(arc.Game,{
 	
 	updateContainer: null,
 	screen: null,
 	stage: null,
-	phase: 0,
+	racer: [],
+	phase: "START",
+	counter: 0,
+	screenManager: null,
 	
 	initialize: function initialize(params){
 		this.updateContainer = new UpdateContainer();
 		this.screen = new arc.display.DisplayObjectContainer();
-//		this.screen._x = -1000;
 		this.addChild(this.screen);
 		this.stage = new arc.display.DisplayObjectContainer();
 		this.screen.addChild(this.stage);
-		var sheep = new Racer({course: 0, animeData:sheepSequence});
-		this.stage.addChild(sheep);	
-		this.updateContainer.add(sheep);
+
 		// コース枠
 		var c = new arc.display.Shape();
 		c.beginStroke(4,0x000000,1.0);
@@ -31,39 +61,97 @@ var gameMain = arc.Class.create(arc.Game,{
 		// コースの脇に置く目印
 		for(var i=0; i<10;++i){
 			var p = new arc.display.Shape();
-//			p.beginStroke(1,0x8888ff,1.0);
 			p.beginFill(0x8888ff,1.0);
 			p.drawCircle(10,10,10);
 			p.endFill();
-//			p.endStroke();
 			p._x = COURSE_X + i * COURSE_LENGTH / 10;
 			p._y = COURSE_Y - 25;
 			this.stage.addChild(p);	
 		}
 
-		var cow2 = new Racer({course:1, animeData:rabbitSequence});
-//		cow2.setY(160);
-		this.stage.addChild(cow2);
-		this.updateContainer.add(cow2);
+
+		var sheep = new Racer({course: 0, animeData:sheepSequence});
+		this.stage.addChild(sheep);	
+		this.updateContainer.add(sheep);
+		var rabbit = new Racer({course:1, animeData:rabbitSequence});
+//		rabbit.setY(160);
+		this.stage.addChild(rabbit);
+		this.updateContainer.add(rabbit);
+		
+		this.racer.push(sheep);
+		this.racer.push(rabbit);
+		
+		var p = new arc.display.TextField();
+		this.screen.addChild(p);
+		p.update = onUpdateScreenPosition;
+		screenManager = p;
 	},
+
+	changePhase: function(phase) {
+		this.phase = phase;
+		this.counter = 0;
+	},
+
 	update: function update(){
+		switch(this.phase){
+			case "START":
+				this.counter++;
+				if(this.counter >= 20){
+					this.changePhase("INIT");
+				}
+			break;
+			case "INIT":
+				this.changePhase("RACE");
+			break;
+			case "RACE":
+			break;
+		}
 		this.updateContainer.update();
+		screenManager.update();
 	},
 });
 
 var Racer = arc.Class.create(AnimeSprite,{
 	pos: 0,
 	cource: 0,
+	id: 0,
+	speed: 0,
+	stamina: 0,
+	
 	initialize: function($super,params){
 		$super(params.animeData);
 		this.course = params.course;
-		this._x = 100;
+		this.id = params.animeData.id;
 	},
 	update: function($super, elapsedTime){
 		var self = this;
-//		self._x = COURSE_LENGTH - self.pos + COURSE_X;
+		var game = arc._system._game;
+		switch(game.phase){
+			case "INIT":
+				self.changeSequence(1);
+				self.speed = 0;
+				self.stamina = charParams[self.id].stamina;
+			break;
+			case "RACE":
+				self.updateRace();
+			break;
+		}
+		self._x = COURSE_LENGTH - self.pos + COURSE_X;
 		self._y = self.course * COURSE_H + COURSE_Y;
 		self.updateAnimation(elapsedTime);
+	},
+	updateRace: function(){
+		var self = this;
+		var param = charParams[self.id];
+		var game = arc._system._game;
+		if(self.speed < param.maxSpeed && self.stamina > 0){
+			self.speed += param.speed / 100;
+			self.stamina--;
+		}else if(self.speed > 1){
+			self.speed = self.speed * (1-0.03);
+		}
+		
+		self.pos += self.speed;
 	},
 });
 
@@ -73,8 +161,7 @@ for(var i=0,len=atags.length;i<len;++i){
 		var self = this;
 		var v = self.getAttribute("data-value") | 0;
 		e.preventDefault();
-		arc._system._game.stage._x += v;
-		console.log(arc._system._game.stage._x );
+		arc._system._game.racer[0].pos += v;
 	});
 }
 

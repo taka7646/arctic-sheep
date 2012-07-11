@@ -17,7 +17,8 @@ var charParams = {
 		name: "ひつじ",
 		life: 100,
 		speed: 100,
-		stamina: 100,
+		maxSpeed: 5,
+		stamina: 80,
 		luck: 100,
 		prize: 1000,
 	},
@@ -26,6 +27,7 @@ var charParams = {
 		name: "うし",
 		life: 100,
 		speed: 80,
+		maxSpeed: 4,
 		stamina: 120,
 		luck: 80,
 		prize: 1000,
@@ -34,16 +36,21 @@ var charParams = {
 		id: 3,
 		name: "うさぎ",
 		life: 100,
-		speed: 130,
-		stamina: 50,
+		speed: 120,
+		maxSpeed: 5.5,
+		stamina: 70,
 		luck: 90,
 		prize: 1000,
 	},
 };
 
 var sheepSequence = {
+	id: 1,
    	images: ['img/hituji_1s.png', 'img/hituji_2s.png'],
    	sequenceList: [
+   			[
+   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   			],
    			[	// 走るアニメ
    				{wait:250, items:[{image: 0, x:0,y:0}]},
    				{wait:250, items:[{image: 1, x:0,y:0}]},
@@ -51,8 +58,12 @@ var sheepSequence = {
    		],
 };
 var cowSequence = {
+	id: 2,
    	images: ['img/ushi_1s.png', 'img/ushi_2s.png'],
    	sequenceList: [
+   			[
+   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   			],
    			[	// 走るアニメ
    				{wait:250, items:[{image: 0, x:0,y:0}]},
    				{wait:250, items:[{image: 1, x:0,y:0}]},
@@ -60,8 +71,12 @@ var cowSequence = {
    		],
 };
 var rabbitSequence = {
+	id: 3,
    	images: ['img/usagi_1s.png', 'img/usagi_2s.png'],
    	sequenceList: [
+   			[
+   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   			],
    			[	// 走るアニメ
    				{wait:250, items:[{image: 0, x:0,y:-8}]},
    				{wait:250, items:[{image: 1, x:0,y:0}]},

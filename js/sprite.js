@@ -35,7 +35,13 @@ var AnimeSprite = arc.Class.create(arc.display.DisplayObject,{
 		this.sequenceList = params.sequenceList;
 	},
 	
-	gotoNextSequence: function(){
+	changeSequence: function(index){
+		this.currentSequence = index;
+		this.sequenceIndex = 0;
+		this.seqenceCounter = 0;
+	},
+	
+	_gotoNextAnimation: function(){
 		var seq = this.sequenceList[this.currentSequence];
 		var len = seq.length;
 		var	frame = seq[this.sequenceIndex];
@@ -60,7 +66,7 @@ var AnimeSprite = arc.Class.create(arc.display.DisplayObject,{
 		var frame = seq[this.sequenceIndex];
 		this.sequenceCounter += elapsedTime;
 		if(this.sequenceCounter >= frame.wait){
-			this.gotoNextSequence();
+			this._gotoNextAnimation();
 		}
 	},
 
