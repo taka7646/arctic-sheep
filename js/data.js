@@ -35,7 +35,7 @@ var charParams = {
 	3:{
 		id: 3,
 		name: "うさぎ",
-		life: 100,
+		life: 90,
 		speed: 120,
 		maxSpeed: 5.5,
 		stamina: 70,
@@ -49,11 +49,15 @@ var sheepSequence = {
    	images: ['img/hituji_1s.png', 'img/hituji_2s.png'],
    	sequenceList: [
    			[
-   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   				{wait:250, items:[{image: 0, x:-88,y:-106}]},
    			],
    			[	// 走るアニメ
-   				{wait:250, items:[{image: 0, x:0,y:0}]},
-   				{wait:250, items:[{image: 1, x:0,y:0}]},
+   				{wait:250, items:[{image: 0, x:-88,y:-106}]},
+   				{wait:250, items:[{image: 1, x:-88,y:-106}]},
+   			],
+   			[
+   				{wait:250, items:[{image: 0, x:-88,y:-106,r:Math.PI/6}]},
+   				{wait:250, items:[{image: 0, x:-88,y:-106,r:-Math.PI/8}]},
    			],
    		],
 };
@@ -62,11 +66,15 @@ var cowSequence = {
    	images: ['img/ushi_1s.png', 'img/ushi_2s.png'],
    	sequenceList: [
    			[
-   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   				{wait:250, items:[{image: 0, x:-88,y:-106}]},
    			],
    			[	// 走るアニメ
-   				{wait:250, items:[{image: 0, x:0,y:0}]},
-   				{wait:250, items:[{image: 1, x:0,y:0}]},
+   				{wait:250, items:[{image: 0, x:-88,y:-106}]},
+   				{wait:250, items:[{image: 1, x:-88,y:-106}]},
+   			],
+   			[
+   				{wait:250, items:[{image: 0, x:-88,y:-106,r:Math.PI/6}]},
+   				{wait:250, items:[{image: 0, x:-88,y:-106,r:-Math.PI/8}]},
    			],
    		],
 };
@@ -75,11 +83,15 @@ var rabbitSequence = {
    	images: ['img/usagi_1s.png', 'img/usagi_2s.png'],
    	sequenceList: [
    			[
-   				{wait:250, items:[{image: 0, x:0,y:0}]},
+   				{wait:250, items:[{image: 0, x:-60,y:-76}]},
    			],
    			[	// 走るアニメ
-   				{wait:250, items:[{image: 0, x:0,y:-8}]},
-   				{wait:250, items:[{image: 1, x:0,y:0}]},
+   				{wait:250, items:[{image: 0, x:-60,y:-84}]},
+   				{wait:250, items:[{image: 1, x:-60,y:-76}]},
+   			],
+   			[
+   				{wait:500, items:[{image: 0, x:-60,y:-76,r:Math.PI/6}]},
+   				{wait:500, items:[{image: 0, x:-60,y:-76,r:-Math.PI/8}]},
    			],
    		],
 };

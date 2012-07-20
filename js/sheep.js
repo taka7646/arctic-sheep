@@ -4,7 +4,7 @@
 var COURSE_X = 200;
 var COURSE_Y = 50;
 var COURSE_H = 150;
-var COURSE_LENGTH = 1000;
+var COURSE_LENGTH = 1500;
 var SCREEN_W = 320;
 
 // スクロール制御 & デバッグ表示
@@ -117,11 +117,14 @@ var Racer = arc.Class.create(AnimeSprite,{
 	id: 0,
 	speed: 0,
 	stamina: 0,
+	jump: 0,
+	jy: 0,
 	
 	initialize: function($super,params){
 		$super(params.animeData);
 		this.course = params.course;
 		this.id = params.animeData.id;
+		this.jy = 0;
 	},
 	update: function($super, elapsedTime){
 		var self = this;
@@ -137,19 +140,31 @@ var Racer = arc.Class.create(AnimeSprite,{
 			break;
 		}
 		self._x = COURSE_LENGTH - self.pos + COURSE_X;
-		self._y = self.course * COURSE_H + COURSE_Y;
+		self._y = self.course * COURSE_H + COURSE_Y + 120 - self.jy;
 		self.updateAnimation(elapsedTime);
 	},
 	updateRace: function(){
 		var self = this;
 		var param = charParams[self.id];
 		var game = arc._system._game;
-		if(self.speed < param.maxSpeed && self.stamina > 0){
-			self.speed += param.speed / 100;
+		if(self.stamina > 0){
 			self.stamina--;
+			if(self.speed < param.maxSpeed){
+				self.speed += param.speed / 100;
+			}
 		}else if(self.speed > 1){
-			self.speed = self.speed * (1-0.03);
+			self.speed = self.speed * (1-0.002);
 		}
+		
+		if(self.jump){
+			self.jump++;
+			self.jy = Math.sin(self.jump*Math.PI / 30) * 64;
+			if(self.jump >= 30){
+				self.jump = 0;
+				self.changeSequence(1);
+			}
+		}
+		
 		
 		self.pos += self.speed;
 	},
@@ -164,6 +179,19 @@ for(var i=0,len=atags.length;i<len;++i){
 		arc._system._game.racer[0].pos += v;
 	});
 }
+
+document.querySelectorAll("#jump")[0].addEventListener('click', function(e){
+	// 自キャラ
+	var self = this;
+	var index = self.getAttribute("data-racer");
+	var racer = arc._system._game.racer[index];
+	if(racer.jump == 0){
+		racer.changeSequence(2);
+		racer.jump++;
+	}
+	console.log(racer);
+});
+
 
 window.addEventListener('DOMContentLoaded', function(e){
     var system = new arc.System(320, 400, 'canvas');

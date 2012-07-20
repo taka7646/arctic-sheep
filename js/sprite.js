@@ -38,7 +38,7 @@ var AnimeSprite = arc.Class.create(arc.display.DisplayObject,{
 	changeSequence: function(index){
 		this.currentSequence = index;
 		this.sequenceIndex = 0;
-		this.seqenceCounter = 0;
+		this.sequenceCounter = 0;
 	},
 	
 	_gotoNextAnimation: function(){
@@ -81,18 +81,29 @@ var AnimeSprite = arc.Class.create(arc.display.DisplayObject,{
 		pY = (pY | 0);
 		for(var i=0,len=frame.items.length; i<len; ++i){
 			var item = frame.items[i];
-			var x = item.x + pX;
-			var y = item.y + pY;
+			var x = pX;
+			var y = pY;
 			var sx = isNaN(item.sx)? 1: item.sx;
 			var sy = isNaN(item.sy)? 1: item.sy;
 			var rot = isNaN(item.r)? 0: item.r;
 			sx *= this._scaleX;
 			sy *= this._scaleY;
-			if(sx === 1 && sy === 1){
-				this.images[item.image].draw(x, y, rot);
-			}else{
-				this.images[item.image].drawSize(x, y, sx, sy, 1, rot);
-			}
+			var img = this.images[item.image];
+			var w = img._width * sx;
+			var h = img._height * sy;
+			var ctx = arc._system._context;
+			ctx.save();
+			ctx.translate(x, y);
+			ctx.rotate(rot);
+			ctx.scale(sx, sy);
+			ctx.drawImage(img._data, 0,0,img._width, img._height, item.x, item.y, img._width, img._height);
+			ctx.restore();
+//			img.drawCrop(item.x, item.y, img._width, img._height, x, y, w, h, rot);
+//			if(sx === 1 && sy === 1){
+//				img.draw(x, y, rot);
+//			}else{
+//				img.drawCrop(item.x, item.y, img._width, img._height, x, y, w, h, rot);
+//			}
 		}
 	},
 });
