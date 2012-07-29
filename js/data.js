@@ -18,7 +18,7 @@ var charParams = {
 		life: 100,
 		speed: 100,
 		maxSpeed: 5,
-		stamina: 80,
+		stamina: 180,
 		luck: 100,
 		prize: 1000,
 	},
@@ -38,7 +38,7 @@ var charParams = {
 		life: 90,
 		speed: 120,
 		maxSpeed: 5.5,
-		stamina: 70,
+		stamina: 120,
 		luck: 90,
 		prize: 1000,
 	},
@@ -83,15 +83,15 @@ var rabbitSequence = {
    	images: ['img/usagi_1s.png', 'img/usagi_2s.png'],
    	sequenceList: [
    			[
-   				{wait:250, items:[{image: 0, x:-60,y:-76}]},
+   				{wait:250, items:[{image: 0, x:-60,y:-70}]},
    			],
    			[	// 走るアニメ
-   				{wait:250, items:[{image: 0, x:-60,y:-84}]},
-   				{wait:250, items:[{image: 1, x:-60,y:-76}]},
+   				{wait:250, items:[{image: 0, x:-60,y:-70}]},
+   				{wait:250, items:[{image: 1, x:-60,y:-48}]},
    			],
    			[
-   				{wait:500, items:[{image: 0, x:-60,y:-76,r:Math.PI/6}]},
-   				{wait:500, items:[{image: 0, x:-60,y:-76,r:-Math.PI/8}]},
+   				{wait:250, items:[{image: 0, x:-60,y:-70,r:Math.PI/6}]},
+   				{wait:250, items:[{image: 0, x:-60,y:-70,r:-Math.PI/8}]},
    			],
    		],
 };
