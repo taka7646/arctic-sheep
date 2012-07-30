@@ -105,7 +105,7 @@ var gameMain = arc.Class.create(arc.Game,{
 		p.update = onUpdateScreenPosition;
 		screenManager = p;
 	},
-
+	
 	changePhase: function(phase) {
 		this.phase = phase;
 		this.counter = 0;
@@ -206,7 +206,7 @@ var EnemyAI = arc.Class.create({
 });
 
 var Racer = arc.Class.create(AnimeSprite,{
-	pos: -80,
+	pos: 0,
 	cource: 0,
 	id: 0,
 	speed: 0,
@@ -229,31 +229,33 @@ var Racer = arc.Class.create(AnimeSprite,{
 	update: function($super, elapsedTime){
 		var self = this;
 		var game = arc._system._game;
+		var param = charParams[self.id];
 		switch(game.phase){
 			case "INIT":
 				self.changeSequence(1);
 				self.speed = 0;
-				self.stamina = charParams[self.id].stamina;
+				self.stamina = param.stamina;
 			break;
 			case "RACE":
 			case "GOAL":
 				self.updateRace();
 			break;
 		}
-		self._x = COURSE_LENGTH - self.pos + COURSE_X;
+		self._x = COURSE_LENGTH - self.pos + COURSE_X + param.width;
 		self._y = self.course * COURSE_H + COURSE_Y + COURSE_H - self.jy;
 		self.updateAnimation(elapsedTime);
 	},
 	hitCheck: function(){
 		var self = this;
 		var game = arc._system._game;
+		var param = charParams[self.id];
 		var obstacles = game.obstacles[self.course];
 		if(self.jump > 0){
 			return;
 		}
 		for(var i=obstacles.length-1;i>=0;i--){
 			var o = obstacles[i];
-			if(o.hitCheck(self.pos)){
+			if(o.hitCheck(self.pos-param.width)){
 				// hit
 				self.speed = 0;
 				self.damage += 20;
@@ -361,6 +363,21 @@ document.querySelectorAll("#jump")[0].addEventListener('click', function(e){
 	racer.doJump();
 });
 
+document.querySelectorAll("#canvas")[0].addEventListener('click', function(e){
+	var index = 0;
+	var game = arc._system._game;
+	var racer = game.racer[index];
+	switch(game.phase){
+		case "RACE":
+			racer.doJump();  	
+		break;
+		case "END":
+			window.location = "room.html";
+		break;
+	}
+});
+	
+
 
 window.addEventListener('DOMContentLoaded', function(e){
     var system = new arc.System(320, 400, 'canvas');
@@ -369,6 +386,7 @@ window.addEventListener('DOMContentLoaded', function(e){
     
     system.addEventListener(arc.Event.PROGRESS, function(e){
     });
+    
     
     system.addEventListener(arc.Event.COMPLETE, function(){
         // ロード終了。この後メインループスタート

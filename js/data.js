@@ -21,6 +21,7 @@ var charParams = {
 		stamina: 180,
 		luck: 100,
 		prize: 1000,
+		width: 88,
 	},
 	2:{
 		id: 2,
@@ -31,6 +32,7 @@ var charParams = {
 		stamina: 120,
 		luck: 80,
 		prize: 1000,
+		width: 60,
 	},
 	3:{
 		id: 3,
@@ -41,6 +43,7 @@ var charParams = {
 		stamina: 120,
 		luck: 90,
 		prize: 1000,
+		width: 60,
 	},
 };
 
