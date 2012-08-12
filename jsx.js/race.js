@@ -103,6 +103,14 @@ _Main$.prototype = new _Main;
  * @param {Array.<undefined|!string>} args
  */
 _Main.main$AS = function (args) {
+	var func;
+	/** @type {ImageLoader} */
+	var imageLoader;
+	func = (function () {
+		console.log("all images loaded");
+	});
+	imageLoader = new ImageLoader$F$V$(func);
+	imageLoader.add$AHS(_Main.images);
 };
 
 var _Main$main$AS = _Main.main$AS;
@@ -148,7 +156,13 @@ var dom$getElementById$S = dom.getElementById$S;
  * @return {HTMLElement}
  */
 dom.createElement$S = function (tag) {
-	return dom.document.createElement(tag);
+	return (function (v) {
+		if (! (v == null || v instanceof HTMLElement)) {
+			debugger;
+			throw new Error("[C:/Users/taka/AppData/Roaming/npm/node_modules/jsx/lib/js/js/web.jsx:59] detected invalid cast, value is not an instance of the designated type or null");
+		}
+		return v;
+	}(dom.document.createElement(tag)));
 };
 
 var dom$createElement$S = dom.createElement$S;
@@ -167,44 +181,142 @@ Drawable.prototype = new Object;
 function Drawable$() {
 	this.childs = new Array();
 	this.alpha = 1;
-	this.pos = {x: 0, y: 0};
-	this.scale = {x: 1, y: 1};
+	this.pos = new Vector2$NN(0, 0);
+	this.scale = new Vector2$NN(1, 1);
 	this.angle = 0;
 };
 
 Drawable$.prototype = new Drawable;
 
 /**
- * @param {Drawable} $this
  * @param {CanvasRenderingContext2D} ctx
  */
-Drawable.draw$LDrawable$LCanvasRenderingContext2D$ = function ($this, ctx) {
+Drawable.prototype.draw$LCanvasRenderingContext2D$ = function (ctx) {
 	/** @type {!number} */
 	var alpha;
 	/** @type {!number} */
 	var i;
 	/** @type {Drawable} */
 	var c;
-	/** @type {Vector2} */
-	var scale$0;
-	/** @type {Vector2} */
-	var pos$0;
 	alpha = ctx.globalAlpha;
 	ctx.save();
-	ctx.globalAlpha *= $this.alpha;
-	ctx.scale((scale$0 = $this.scale).x, scale$0.y);
-	ctx.rotate($this.angle);
-	ctx.translate((pos$0 = $this.pos).x, pos$0.y);
-	Drawable$drawCore$LDrawable$LCanvasRenderingContext2D$($this, ctx);
-	for (i = 0; i < $this.childs.length; i++) {
-		c = $this.childs[i];
-		Drawable$draw$LDrawable$LCanvasRenderingContext2D$(c, ctx);
+	ctx.globalAlpha *= this.alpha;
+	ctx.scale(this.scale.x, this.scale.y);
+	ctx.rotate(this.angle);
+	ctx.translate(this.pos.x, this.pos.y);
+	this.drawCore$LCanvasRenderingContext2D$(ctx);
+	for (i = 0; i < this.childs.length; i++) {
+		c = this.childs[i];
+		c.draw$LCanvasRenderingContext2D$(ctx);
 	}
 	ctx.restore();
 	ctx.globalAlpha = alpha;
 };
 
-var Drawable$draw$LDrawable$LCanvasRenderingContext2D$ = Drawable.draw$LDrawable$LCanvasRenderingContext2D$;
+/**
+ * class ImageLoader extends Object
+ * @constructor
+ */
+function ImageLoader() {
+}
+
+ImageLoader.prototype = new Object;
+/**
+ * @constructor
+ */
+function ImageLoader$F$V$(callback) {
+	this.imageMap = new Object();
+	this.imageCount = 0;
+	this.loadedCount = 0;
+	this.completeCallback = callback;
+};
+
+ImageLoader$F$V$.prototype = new ImageLoader;
+
+/**
+ * @param {Array.<undefined|Object.<string, undefined|!string>>} images
+ */
+ImageLoader.prototype.add$AHS = function (images) {
+	var $this = this;
+	/** @type {ImageLoader} */
+	var self;
+	var callBack;
+	/** @type {!number} */
+	var i;
+	/** @type {Object.<string, undefined|!string>} */
+	var src;
+	/** @type {HTMLImageElement} */
+	var img;
+	self = this;
+	callBack = (function (e) {
+		/** @type {HTMLImageElement} */
+		var image;
+		image = (function (o) { return o instanceof HTMLImageElement ? o : null; })(e.target);
+		self.loadedCount++;
+		console.log(image.src + " load complete");
+		if (self.loadedCount >= self.imageCount) {
+			self.completeCallback();
+		}
+	});
+	for (i = 0; i < images.length; i++) {
+		src = images[i];
+		img = (function (o) { return o instanceof HTMLImageElement ? o : null; })(dom$createElement$S("img"));
+		img.addEventListener("load", callBack);
+		this.imageCount++;
+		this.imageMap[src.key] = img;
+		img.src = (function (v) {
+			if (! (v != null)) {
+				debugger;
+				throw new Error("[jsx/lib/ImageLoader.jsx:32] null access");
+			}
+			return v;
+		}(src.url));
+	}
+};
+
+/**
+ * @param {!string} key
+ * @return {HTMLImageElement}
+ */
+ImageLoader.prototype.get$S = function (key) {
+	return this.imageMap[key];
+};
+
+/**
+ * class Sprite extends Drawable
+ * @constructor
+ */
+function Sprite() {
+}
+
+Sprite.prototype = new Drawable;
+/**
+ * @constructor
+ */
+function Sprite$() {
+	Drawable$.call(this);
+	this.rects = null;
+	this.image = null;
+};
+
+Sprite$.prototype = new Sprite;
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ */
+Sprite.prototype.drawCore$LCanvasRenderingContext2D$ = function (ctx) {
+	/** @type {!number} */
+	var i;
+	/** @type {PartsRect} */
+	var r;
+	if (this.rects == null || this.image == null) {
+		return;
+	}
+	for (i = 0; i < this.rects.length; i++) {
+		r = this.rects[i];
+		ctx.drawImage(this.image, r.u, r.v, r.w, r.h, r.x, r.y, r.w, r.h);
+	}
+};
 
 /**
  * class Vector2 extends Object
@@ -248,59 +360,38 @@ function Vector2$NN(x, y) {
 Vector2$NN.prototype = new Vector2;
 
 /**
- * @param {Vector2} $this
  * @param {!number} x
  * @param {!number} y
  * @return {Vector2}
  */
-Vector2.add$LVector2$NN = function ($this, x, y) {
-	$this.x += x;
-	$this.y += y;
-	return $this;
+Vector2.prototype.add$NN = function (x, y) {
+	this.x += x;
+	this.y += y;
+	return this;
 };
 
-var Vector2$add$LVector2$NN = Vector2.add$LVector2$NN;
-
 /**
- * @param {Vector2} $this
  * @param {Vector2} pos
  * @return {Vector2}
  */
-Vector2.add$LVector2$LVector2$ = function ($this, pos) {
-	/** @type {!number} */
-	var x$0;
-	/** @type {!number} */
-	var y$0;
-	x$0 = pos.x;
-	y$0 = pos.y;
-	$this.x += x$0;
-	$this.y += y$0;
-	return $this;
+Vector2.prototype.add$LVector2$ = function (pos) {
+	return this.add$NN(pos.x, pos.y);
 };
 
-var Vector2$add$LVector2$LVector2$ = Vector2.add$LVector2$LVector2$;
-
 /**
- * @param {Vector2} $this
  * @param {Vector2} target
  * @param {!number} rate
  * @return {Vector2}
  */
-Vector2.linear$LVector2$LVector2$N = function ($this, target, rate) {
+Vector2.prototype.linear$LVector2$N = function (target, rate) {
 	/** @type {!number} */
 	var x;
 	/** @type {!number} */
 	var y;
-	/** @type {!number} */
-	var x$0;
-	/** @type {!number} */
-	var y$0;
-	x = (x$0 = $this.x) + (target.x - x$0) * rate;
-	y = (y$0 = $this.y) + (target.y - y$0) * rate;
-	return {x: x, y: y};
+	x = this.x + (target.x - this.x) * rate;
+	y = this.y + (target.y - this.y) * rate;
+	return new Vector2$NN(x, y);
 };
-
-var Vector2$linear$LVector2$LVector2$N = Vector2.linear$LVector2$LVector2$N;
 
 /**
  * class js extends Object
@@ -318,11 +409,20 @@ function js$() {
 
 js$.prototype = new js;
 
+$__jsx_lazy_init(_Main, "images", function () {
+	return [ { key: "usagi1", url: "img/usagi_1s.png" }, { key: "usagi2", url: "img/usagi_2s.png" } ];
+});
 $__jsx_lazy_init(dom, "window", function () {
 	return js.global.window;
 });
 $__jsx_lazy_init(dom, "document", function () {
-	return js.global.document;
+	return (function (v) {
+		if (! (v == null || v instanceof HTMLDocument)) {
+			debugger;
+			throw new Error("[C:/Users/taka/AppData/Roaming/npm/node_modules/jsx/lib/js/js/web.jsx:31] detected invalid cast, value is not an instance of the designated type or null");
+		}
+		return v;
+	}(js.global.document));
 });
 js.global = (function () { return this; })();
 
@@ -338,6 +438,14 @@ var $__jsx_classMap = {
 	"jsx/lib/Drawable.jsx": {
 		Drawable: Drawable,
 		Drawable$: Drawable$
+	},
+	"jsx/lib/ImageLoader.jsx": {
+		ImageLoader: ImageLoader,
+		ImageLoader$F$V$: ImageLoader$F$V$
+	},
+	"jsx/lib/Sprite.jsx": {
+		Sprite: Sprite,
+		Sprite$: Sprite$
 	},
 	"jsx/lib/Vector2.jsx": {
 		Vector2: Vector2,
