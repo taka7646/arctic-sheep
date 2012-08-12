@@ -103,14 +103,10 @@ _Main$.prototype = new _Main;
  * @param {Array.<undefined|!string>} args
  */
 _Main.main$AS = function (args) {
-	var func;
-	/** @type {ImageLoader} */
-	var imageLoader;
-	func = (function () {
-		console.log("all images loaded");
-	});
-	imageLoader = new ImageLoader$F$V$(func);
-	imageLoader.add$AHS(_Main.images);
+	/** @type {Stage} */
+	var stage;
+	stage = new Stage$S("canvas");
+	stage.loadImage$AHS(_Main.images);
 };
 
 var _Main$main$AS = _Main.main$AS;
@@ -187,6 +183,27 @@ function Drawable$() {
 };
 
 Drawable$.prototype = new Drawable;
+
+/**
+ * @param {!number} elapsedTime
+ */
+Drawable.prototype.updateCore$N = function (elapsedTime) {
+};
+
+/**
+ * @param {!number} elapsedTime
+ */
+Drawable.prototype.update$N = function (elapsedTime) {
+	/** @type {!number} */
+	var i;
+	/** @type {Drawable} */
+	var c;
+	this.updateCore$N(elapsedTime);
+	for (i = 0; i < this.childs.length; i++) {
+		c = this.childs[i];
+		c.update$N(elapsedTime);
+	}
+};
 
 /**
  * @param {CanvasRenderingContext2D} ctx
@@ -319,6 +336,138 @@ Sprite.prototype.drawCore$LCanvasRenderingContext2D$ = function (ctx) {
 };
 
 /**
+ * class Stage extends Object
+ * @constructor
+ */
+function Stage() {
+}
+
+Stage.prototype = new Object;
+/**
+ * @constructor
+ */
+function Stage$() {
+	this.canvas = null;
+	this.imageLoader = null;
+	this.prevTime = 0;
+	this.nowTime = 0;
+	this.fps = 30;
+	this.enterFrame = null;
+	this.drawItems = new Array();
+	this.itemMap = new Object();
+};
+
+Stage$.prototype = new Stage;
+
+/**
+ * @constructor
+ * @param {!string} id
+ */
+function Stage$S(id) {
+	var $this = this;
+	/** @type {Stage} */
+	var self;
+	this.imageLoader = null;
+	this.prevTime = 0;
+	this.nowTime = 0;
+	this.fps = 30;
+	this.enterFrame = null;
+	this.canvas = (function (o) { return o instanceof HTMLCanvasElement ? o : null; })(dom$id$S(id));
+	this.drawItems = new Array();
+	this.itemMap = new Object();
+	self = this;
+	this.enterFrame = (function () {
+		/** @type {!number} */
+		var elapsedTime;
+		self.prevTime = self.nowTime;
+		self.nowTime = Date.now();
+		elapsedTime = self.nowTime - self.prevTime;
+		self.update$N(elapsedTime);
+		self.draw$();
+		dom.window.setTimeout(self.enterFrame, self.fps / 1000);
+	});
+};
+
+Stage$S.prototype = new Stage;
+
+/**
+ */
+Stage.prototype.start$ = function () {
+	dom.window.setTimeout(this.enterFrame, this.fps / 1000);
+};
+
+/**
+ * @param {Array.<undefined|Object.<string, undefined|!string>>} images
+ */
+Stage.prototype.loadImage$AHS = function (images) {
+	var $this = this;
+	/** @type {Stage} */
+	var self;
+	var callBack;
+	self = this;
+	callBack = (function () {
+		console.log("image load complete.");
+		self.start$();
+	});
+	this.imageLoader = new ImageLoader$F$V$(callBack);
+	this.imageLoader.add$AHS(images);
+};
+
+/**
+ * @param {!number} elapsedTime
+ */
+Stage.prototype.update$N = function (elapsedTime) {
+	/** @type {!number} */
+	var i;
+	/** @type {Drawable} */
+	var o;
+	for (i = 0; i < this.drawItems.length; i++) {
+		o = this.drawItems[i];
+		o.update$N(elapsedTime);
+	}
+};
+
+/**
+ */
+Stage.prototype.draw$ = function () {
+	/** @type {CanvasRenderingContext2D} */
+	var ctx;
+	/** @type {!number} */
+	var i;
+	/** @type {Drawable} */
+	var o;
+	ctx = (function (o) { return o instanceof CanvasRenderingContext2D ? o : null; })(this.canvas.getContext("2d"));
+	for (i = 0; i < this.drawItems.length; i++) {
+		o = this.drawItems[i];
+		o.draw$LCanvasRenderingContext2D$(ctx);
+	}
+};
+
+/**
+ * @param {Drawable} drawItem
+ */
+Stage.prototype.add$LDrawable$ = function (drawItem) {
+	this.drawItems.push(drawItem);
+};
+
+/**
+ * @param {!string} name
+ * @param {Drawable} drawItem
+ */
+Stage.prototype.add$SLDrawable$ = function (name, drawItem) {
+	this.add$LDrawable$(drawItem);
+	this.itemMap[name] = drawItem;
+};
+
+/**
+ * @param {!string} name
+ * @return {Drawable}
+ */
+Stage.prototype.get$S = function (name) {
+	return this.itemMap[name];
+};
+
+/**
  * class Vector2 extends Object
  * @constructor
  */
@@ -446,6 +595,11 @@ var $__jsx_classMap = {
 	"jsx/lib/Sprite.jsx": {
 		Sprite: Sprite,
 		Sprite$: Sprite$
+	},
+	"jsx/lib/Stage.jsx": {
+		Stage: Stage,
+		Stage$: Stage$,
+		Stage$S: Stage$S
 	},
 	"jsx/lib/Vector2.jsx": {
 		Vector2: Vector2,

@@ -14,8 +14,19 @@ abstract class Drawable{
 		this.angle = 0;
 	}
 
-	abstract function drawCore(ctx: CanvasRenderingContext2D): void;
+	function updateCore(elapsedTime: number):void{
+	}
+
+	function update(elapsedTime: number):void{
+		this.updateCore(elapsedTime);
+		for(var i=0; i < this.childs.length; i++){
+			var c = this.childs[i];
+			c.update(elapsedTime);
+		}
+	}
 	
+	abstract function drawCore(ctx: CanvasRenderingContext2D): void;
+
 	function draw(ctx: CanvasRenderingContext2D): void{
 		var alpha = ctx.globalAlpha;
 		ctx.save();
