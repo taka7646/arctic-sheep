@@ -56,6 +56,7 @@ var gameMain = arc.Class.create(arc.Game,{
 	initialize: function initialize(params){
 		this.updateContainer = new UpdateContainer();
 		this.screen = new arc.display.DisplayObjectContainer();
+		this.addEventListener(arc.Event.TOUCH_START, this.onClick);
 		this.addChild(this.screen);
 		this.stage = new arc.display.DisplayObjectContainer();
 		this.screen.addChild(this.stage);
@@ -104,6 +105,21 @@ var gameMain = arc.Class.create(arc.Game,{
 		this.screen.addChild(p);
 		p.update = onUpdateScreenPosition;
 		screenManager = p;
+	},
+	
+	onClick: function(e){
+	
+		var index = 0;
+		var game = arc._system._game;
+		var racer = game.racer[index];
+		switch(game.phase){
+			case "RACE":
+				racer.doJump();  	
+			break;
+			case "END":
+				window.location = "room.html";
+			break;
+		}
 	},
 	
 	changePhase: function(phase) {
@@ -165,6 +181,7 @@ var gameMain = arc.Class.create(arc.Game,{
 					m.setY(160);
 					m.setFont("sans-serif", 40, true);
 					self.screen.addChild(m);
+					m.addEventListener(arc.Event.TOUCH_START, self.onClick);
 				}
 				if(this.counter >= 50){
 					this.changePhase("END");
@@ -355,6 +372,9 @@ for(var i=0,len=atags.length;i<len;++i){
 	});
 }
 
+
+
+
 document.querySelectorAll("#jump")[0].addEventListener('click', function(e){
 	// 自キャラ
 	var self = this;
@@ -363,20 +383,24 @@ document.querySelectorAll("#jump")[0].addEventListener('click', function(e){
 	racer.doJump();
 });
 
-document.querySelectorAll("#canvas")[0].addEventListener('click', function(e){
-	var index = 0;
-	var game = arc._system._game;
-	var racer = game.racer[index];
-	switch(game.phase){
-		case "RACE":
-			racer.doJump();  	
-		break;
-		case "END":
-			window.location = "room.html";
-		break;
-	}
-});
-	
+// function onClick(e){
+// 
+	// var index = 0;
+	// var game = arc._system._game;
+	// var racer = game.racer[index];
+	// switch(game.phase){
+		// case "RACE":
+			// racer.doJump();  	
+		// break;
+		// case "END":
+			// window.location = "room.html";
+		// break;
+	// }
+// };
+// var tag = document.querySelectorAll("#canvas")[0];
+// tag.addEventListener('touchstart', onClick);
+// tag.addEventListener('click', onClick);
+
 
 
 window.addEventListener('DOMContentLoaded', function(e){
