@@ -103,13 +103,37 @@ _Main$.prototype = new _Main;
  * @param {Array.<undefined|!string>} args
  */
 _Main.main$AS = function (args) {
-	/** @type {Stage} */
-	var stage;
-	stage = new Stage$S("canvas");
-	stage.loadImage$AHS(_Main.images);
+	/** @type {Game} */
+	var game;
+	/** @type {Array.<undefined|Object.<string, undefined|!string>>} */
+	var images;
+	/** @type {Object.<string, undefined|*>} */
+	var params;
+	game = new Game$S("canvas");
+	js.global.stage = game;
+	images = (function (o) { return o instanceof Array ? o : null; })(js.global.images);
+	game.loadImage$AHS(images);
+	params = (function (o) { return o instanceof Object ? o : null; })(js.global.params);
+	game.initialize$();
 };
 
 var _Main$main$AS = _Main.main$AS;
+
+/**
+ * class js extends Object
+ * @constructor
+ */
+function js() {
+}
+
+js.prototype = new Object;
+/**
+ * @constructor
+ */
+function js$() {
+};
+
+js$.prototype = new js;
 
 /**
  * class dom extends Object
@@ -180,6 +204,7 @@ function Drawable$() {
 	this.pos = new Vector2$NN(0, 0);
 	this.scale = new Vector2$NN(1, 1);
 	this.angle = 0;
+	this.visible = true;
 };
 
 Drawable$.prototype = new Drawable;
@@ -215,6 +240,9 @@ Drawable.prototype.draw$LCanvasRenderingContext2D$ = function (ctx) {
 	var i;
 	/** @type {Drawable} */
 	var c;
+	if (! this.visible) {
+		return;
+	}
 	alpha = ctx.globalAlpha;
 	ctx.save();
 	ctx.globalAlpha *= this.alpha;
@@ -228,6 +256,13 @@ Drawable.prototype.draw$LCanvasRenderingContext2D$ = function (ctx) {
 	}
 	ctx.restore();
 	ctx.globalAlpha = alpha;
+};
+
+/**
+ * @param {Drawable} drawItem
+ */
+Drawable.prototype.addChild$LDrawable$ = function (drawItem) {
+	this.childs.push(drawItem);
 };
 
 /**
@@ -300,6 +335,34 @@ ImageLoader.prototype.get$S = function (key) {
 };
 
 /**
+ * class Shape extends Drawable
+ * @constructor
+ */
+function Shape() {
+}
+
+Shape.prototype = new Drawable;
+/**
+ * @constructor
+ */
+function Shape$F$LCanvasRenderingContext2D$LShape$V$(renderFunc) {
+	Drawable$.call(this);
+	this.renderFunc = renderFunc;
+};
+
+Shape$F$LCanvasRenderingContext2D$LShape$V$.prototype = new Shape;
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ */
+Shape.prototype.drawCore$LCanvasRenderingContext2D$ = function (ctx) {
+	if (this.renderFunc == null) {
+		return;
+	}
+	this.renderFunc(ctx, this);
+};
+
+/**
  * class Sprite extends Drawable
  * @constructor
  */
@@ -313,7 +376,6 @@ Sprite.prototype = new Drawable;
 function Sprite$() {
 	Drawable$.call(this);
 	this.rects = null;
-	this.image = null;
 };
 
 Sprite$.prototype = new Sprite;
@@ -322,16 +384,105 @@ Sprite$.prototype = new Sprite;
  * @param {CanvasRenderingContext2D} ctx
  */
 Sprite.prototype.drawCore$LCanvasRenderingContext2D$ = function (ctx) {
+	/** @type {Stage} */
+	var stage;
 	/** @type {!number} */
 	var i;
-	/** @type {PartsRect} */
+	/** @type {PartsRect$0} */
 	var r;
-	if (this.rects == null || this.image == null) {
+	/** @type {HTMLImageElement} */
+	var image;
+	if (this.rects == null) {
 		return;
 	}
+	stage = (function (o) { return o instanceof Stage ? o : null; })(js.global.stage);
 	for (i = 0; i < this.rects.length; i++) {
 		r = this.rects[i];
-		ctx.drawImage(this.image, r.u, r.v, r.w, r.h, r.x, r.y, r.w, r.h);
+		image = stage.getImage$S(r.image);
+		ctx.drawImage(image, r.u, r.v, r.w, r.h, r.x, r.y, r.w, r.h);
+	}
+};
+
+/**
+ * class SequenceAnimationSprite extends Sprite
+ * @constructor
+ */
+function SequenceAnimationSprite() {
+}
+
+SequenceAnimationSprite.prototype = new Sprite;
+/**
+ * @constructor
+ */
+function SequenceAnimationSprite$() {
+	Sprite$.call(this);
+	this.sequenceData = null;
+	this.sequenceName = "";
+	this.seqIndex = 0;
+	this.seqTime = 0;
+};
+
+SequenceAnimationSprite$.prototype = new SequenceAnimationSprite;
+
+/**
+ * @constructor
+ * @param {Object.<string, undefined|Array.<undefined|Sequence>>} sequenceData
+ */
+function SequenceAnimationSprite$HALSequence$(sequenceData) {
+	Sprite$.call(this);
+	this.sequenceName = "";
+	this.seqIndex = 0;
+	this.seqTime = 0;
+	this.sequenceData = sequenceData;
+};
+
+SequenceAnimationSprite$HALSequence$.prototype = new SequenceAnimationSprite;
+
+/**
+ * @param {!string} name
+ */
+SequenceAnimationSprite.prototype.changeSequence$S = function (name) {
+	this.sequenceName = name;
+	this.changeSeqIndex$N(0);
+};
+
+/**
+ * @param {!number} index
+ */
+SequenceAnimationSprite.prototype.changeSeqIndex$N = function (index) {
+	/** @type {Array.<undefined|Sequence>} */
+	var seq;
+	seq = this.sequenceData[this.sequenceName];
+	if (index >= seq.length) {
+		index %= seq.length;
+	}
+	this.seqIndex = index;
+	this.seqTime = 0;
+	this.rects = seq[index].parts;
+	if (seq[index].angle != null) {
+		this.angle = (function (v) {
+			if (! (v != null)) {
+				debugger;
+				throw new Error("[jsx/lib/Sprite.jsx:75] null access");
+			}
+			return v;
+		}(seq[index].angle));
+	}
+};
+
+/**
+ * @param {!number} elapsedTime
+ */
+SequenceAnimationSprite.prototype.update$N = function (elapsedTime) {
+	/** @type {Array.<undefined|Sequence>} */
+	var seq;
+	seq = this.sequenceData[this.sequenceName];
+	if (seq == null) {
+		return;
+	}
+	this.seqTime += elapsedTime;
+	if (seq[this.seqIndex].time <= this.seqTime) {
+		this.changeSeqIndex$N(this.seqIndex + 1);
 	}
 };
 
@@ -352,6 +503,8 @@ function Stage$() {
 	this.prevTime = 0;
 	this.nowTime = 0;
 	this.fps = 30;
+	this.width = 0;
+	this.height = 0;
 	this.enterFrame = null;
 	this.drawItems = new Array();
 	this.itemMap = new Object();
@@ -373,6 +526,8 @@ function Stage$S(id) {
 	this.fps = 30;
 	this.enterFrame = null;
 	this.canvas = (function (o) { return o instanceof HTMLCanvasElement ? o : null; })(dom$id$S(id));
+	this.width = this.canvas.width;
+	this.height = this.canvas.height;
 	this.drawItems = new Array();
 	this.itemMap = new Object();
 	self = this;
@@ -393,6 +548,7 @@ Stage$S.prototype = new Stage;
 /**
  */
 Stage.prototype.start$ = function () {
+	console.log("start main loop.");
 	dom.window.setTimeout(this.enterFrame, this.fps / 1000);
 };
 
@@ -437,6 +593,7 @@ Stage.prototype.draw$ = function () {
 	/** @type {Drawable} */
 	var o;
 	ctx = (function (o) { return o instanceof CanvasRenderingContext2D ? o : null; })(this.canvas.getContext("2d"));
+	ctx.clearRect(0, 0, this.width, this.height);
 	for (i = 0; i < this.drawItems.length; i++) {
 		o = this.drawItems[i];
 		o.draw$LCanvasRenderingContext2D$(ctx);
@@ -465,6 +622,14 @@ Stage.prototype.add$SLDrawable$ = function (name, drawItem) {
  */
 Stage.prototype.get$S = function (name) {
 	return this.itemMap[name];
+};
+
+/**
+ * @param {!string} key
+ * @return {HTMLImageElement}
+ */
+Stage.prototype.getImage$S = function (key) {
+	return this.imageLoader.get$S(key);
 };
 
 /**
@@ -543,24 +708,328 @@ Vector2.prototype.linear$LVector2$N = function (target, rate) {
 };
 
 /**
- * class js extends Object
+ * class Course extends Shape
  * @constructor
  */
-function js() {
+function Course() {
 }
 
-js.prototype = new Object;
+Course.prototype = new Shape;
 /**
  * @constructor
  */
-function js$() {
+function Course$F$LCanvasRenderingContext2D$LShape$V$(renderFunc) {
+	Shape$F$LCanvasRenderingContext2D$LShape$V$.call(this, renderFunc);
+	this.x = 0;
+	this.y = 0;
 };
 
-js$.prototype = new js;
+Course$F$LCanvasRenderingContext2D$LShape$V$.prototype = new Course;
 
-$__jsx_lazy_init(_Main, "images", function () {
-	return [ { key: "usagi1", url: "img/usagi_1s.png" }, { key: "usagi2", url: "img/usagi_2s.png" } ];
-});
+/**
+ * @param {!number} elapsedTime
+ */
+Course.prototype.update$N = function (elapsedTime) {
+	/** @type {Game} */
+	var game;
+	/** @type {Racer} */
+	var p0;
+	/** @type {Racer} */
+	var p1;
+	/** @type {!number} */
+	var diff;
+	/** @type {!number} */
+	var pos;
+	/** @type {!number} */
+	var adiff;
+	game = (function (o) { return o instanceof Game ? o : null; })(js.global.stage);
+	Drawable.prototype.update$N.call(this, elapsedTime);
+	p0 = game.racers[0];
+	p1 = game.racers[1];
+	diff = p0.pos.x - p1.pos.x;
+	pos = 0;
+	if (diff < 0) {
+		adiff = (diff >= 0 ? diff : - diff);
+		if (adiff < Const.SCREEN_W * 0.8) {
+			pos = p0.pos.x + adiff / 2;
+		} else {
+			pos = p0.pos.x + Const.SCREEN_W * 0.4;
+		}
+	} else {
+		if (diff > 0) {
+			pos = p0.pos.x - Const.SCREEN_W * 0.25;
+		} else {
+			pos = p0.pos.x;
+		}
+	}
+	pos = p0.pos.x - Const.SCREEN_W * 0.25;
+	pos = - pos + Const.SCREEN_W / 2;
+	this.pos.x = pos;
+};
+
+/**
+ * class Game extends Stage
+ * @constructor
+ */
+function Game() {
+}
+
+Game.prototype = new Stage;
+/**
+ * @constructor
+ * @param {!string} id
+ */
+function Game$S(id) {
+	Stage$S.call(this, id);
+	this.stage = null;
+	this.racers = new Array();
+	this.obstacles = new Array();
+	this.obstacles.push(new Array());
+	this.obstacles.push(new Array());
+};
+
+Game$S.prototype = new Game;
+
+/**
+ */
+Game.prototype.initialize$ = function () {
+	var $this = this;
+	var func;
+	/** @type {Course} */
+	var course;
+	/** @type {!number} */
+	var i;
+	/** @type {!number} */
+	var j;
+	/** @type {!number} */
+	var p;
+	/** @type {Obstacle} */
+	var o;
+	/** @type {Object.<string, undefined|Array.<undefined|Sequence>>} */
+	var sheepData;
+	/** @type {Racer} */
+	var s;
+	/** @type {Object.<string, undefined|Array.<undefined|Sequence>>} */
+	var rabbitData;
+	func = (function (ctx, self) {
+		/** @type {!number} */
+		var x;
+		/** @type {!number} */
+		var y;
+		/** @type {!number} */
+		var w;
+		/** @type {!number} */
+		var h;
+		/** @type {!number} */
+		var i;
+		x = Const.COURSE_X - 2;
+		y = Const.COURSE_Y - 2;
+		w = Const.COURSE_LENGTH;
+		h = Const.COURSE_H * 2.5;
+		ctx.lineWidth = 4;
+		ctx.beginPath();
+		ctx.rect(x, y, w, h);
+		ctx.stroke();
+		for (i = 0; i < 10; ++ i) {
+			x = Const.COURSE_X + i * Const.COURSE_LENGTH / 10;
+			y = Const.COURSE_Y - 25;
+			ctx.beginPath();
+			ctx.fillStyle = 'rgb(128 , 128 , 255)';
+			ctx.arc(x + 10, y + 10, 10, 0, 360, false);
+			ctx.fill();
+		}
+	});
+	course = new Course$F$LCanvasRenderingContext2D$LShape$V$(func);
+	this.add$LDrawable$(course);
+	for (i = 0; i < 2; i++) {
+		for (j = 0; j < 3; j++) {
+			p = Math.random() * Const.COURSE_LENGTH * 0.8 + Const.COURSE_LENGTH * 0.2;
+			o = new Obstacle$NN(i, p | 0);
+			course.addChild$LDrawable$(o);
+			this.obstacles[i].push(o);
+		}
+	}
+	sheepData = (function (o) { return o instanceof Object ? o : null; })(js.global.sheepData);
+	s = new Racer$NHALSequence$(0, sheepData);
+	s.changeSequence$S("run");
+	course.addChild$LDrawable$(s);
+	this.racers.push(s);
+	rabbitData = (function (o) { return o instanceof Object ? o : null; })(js.global.rabbitData);
+	s = new Racer$NHALSequence$(1, rabbitData);
+	s.changeSequence$S("run");
+	course.addChild$LDrawable$(s);
+	this.racers.push(s);
+};
+
+/**
+ * @param {!number} coursePos
+ * @param {!number} course
+ * @param {Vector2} pos
+ */
+Game.calcPosition$NNLVector2$ = function (coursePos, course, pos) {
+	pos.x = Const.COURSE_LENGTH - coursePos + Const.COURSE_X;
+	pos.y = course * Const.COURSE_H + Const.COURSE_Y + Const.COURSE_H;
+};
+
+var Game$calcPosition$NNLVector2$ = Game.calcPosition$NNLVector2$;
+
+/**
+ * class Const extends Object
+ * @constructor
+ */
+function Const() {
+}
+
+Const.prototype = new Object;
+/**
+ * @constructor
+ */
+function Const$() {
+};
+
+Const$.prototype = new Const;
+
+/**
+ * class Obstacle extends Drawable
+ * @constructor
+ */
+function Obstacle() {
+}
+
+Obstacle.prototype = new Drawable;
+/**
+ * @constructor
+ * @param {!number} course
+ * @param {!number} pos
+ */
+function Obstacle$NN(course, pos) {
+	Drawable$.call(this);
+	this.racePos = pos;
+	this.course = course;
+};
+
+Obstacle$NN.prototype = new Obstacle;
+
+/**
+ * @param {!number} elapsedTime
+ */
+Obstacle.prototype.update$N = function (elapsedTime) {
+	Game$calcPosition$NNLVector2$(this.racePos, this.course, this.pos);
+};
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ */
+Obstacle.prototype.drawCore$LCanvasRenderingContext2D$ = function (ctx) {
+	ctx.beginPath();
+	ctx.fillStyle = 'rgb(170, 170 , 170)';
+	ctx.arc(10, 10, 10, 0, 360, false);
+	ctx.fill();
+};
+
+/**
+ * class Racer extends SequenceAnimationSprite
+ * @constructor
+ */
+function Racer() {
+}
+
+Racer.prototype = new SequenceAnimationSprite;
+/**
+ * @constructor
+ * @param {!number} course
+ * @param {Object.<string, undefined|Array.<undefined|Sequence>>} sequenceData
+ */
+function Racer$NHALSequence$(course, sequenceData) {
+	SequenceAnimationSprite$HALSequence$.call(this, sequenceData);
+	this.id = 0;
+	this.speed = 0;
+	this.accel = 0;
+	this.stamina = 0;
+	this.jump = 0;
+	this.jy = 0;
+	this.damage = 0;
+	this.ai = null;
+	this.racePos = 0;
+	this.course = course;
+};
+
+Racer$NHALSequence$.prototype = new Racer;
+
+/**
+ * @param {!number} elapsedTime
+ */
+Racer.prototype.update$N = function (elapsedTime) {
+	/** @type {Game} */
+	var game;
+	game = (function (o) { return o instanceof Game ? o : null; })(js.global.stage);
+	Game$calcPosition$NNLVector2$(this.racePos, this.course, this.pos);
+	SequenceAnimationSprite.prototype.update$N.call(this, elapsedTime);
+};
+
+/**
+ */
+Racer.prototype.doJump$ = function () {
+};
+
+/**
+ * class EnemyAI extends Object
+ * @constructor
+ */
+function EnemyAI() {
+}
+
+EnemyAI.prototype = new Object;
+/**
+ * @constructor
+ * @param {Racer} owner
+ */
+function EnemyAI$LRacer$(owner) {
+	this.owner = owner;
+	this.jumpHistory = new Array();
+};
+
+EnemyAI$LRacer$.prototype = new EnemyAI;
+
+/**
+ */
+EnemyAI.prototype.update$ = function () {
+	/** @type {Game} */
+	var game;
+	/** @type {Racer} */
+	var owner;
+	/** @type {Array.<undefined|Obstacle>} */
+	var items;
+	/** @type {!number} */
+	var racePos;
+	/** @type {!number} */
+	var i;
+	/** @type {Obstacle} */
+	var o;
+	/** @type {!number} */
+	var diff;
+	game = (function (o) { return o instanceof Game ? o : null; })(js.global.stage);
+	owner = this.owner;
+	items = game.obstacles[owner.course];
+	racePos = owner.racePos;
+	for (i = items.length - 1; i >= 0; i--) {
+		if (this.jumpHistory[i] == 1) {
+			continue;
+		}
+		o = items[i];
+		diff = o.racePos - racePos;
+		if (diff > 5 && diff < 64) {
+			this.jumpHistory[i] = 1;
+			if (Math.random() < 0.5) {
+				owner.doJump$();
+			}
+		}
+	}
+};
+
+_Main.stage = null;
+js.global = (function () { return this; })();
+
 $__jsx_lazy_init(dom, "window", function () {
 	return js.global.window;
 });
@@ -573,12 +1042,19 @@ $__jsx_lazy_init(dom, "document", function () {
 		return v;
 	}(js.global.document));
 });
-js.global = (function () { return this; })();
-
+Const.COURSE_X = 200;
+Const.COURSE_Y = 30;
+Const.COURSE_H = 120;
+Const.COURSE_LENGTH = 1500;
+Const.SCREEN_W = 320;
 var $__jsx_classMap = {
 	"jsx/race.jsx": {
 		_Main: _Main,
 		_Main$: _Main$
+	},
+	"system:lib/js/js.jsx": {
+		js: js,
+		js$: js$
 	},
 	"system:lib/js/js/web.jsx": {
 		dom: dom,
@@ -592,9 +1068,16 @@ var $__jsx_classMap = {
 		ImageLoader: ImageLoader,
 		ImageLoader$F$V$: ImageLoader$F$V$
 	},
+	"jsx/lib/Shape.jsx": {
+		Shape: Shape,
+		Shape$F$LCanvasRenderingContext2D$LShape$V$: Shape$F$LCanvasRenderingContext2D$LShape$V$
+	},
 	"jsx/lib/Sprite.jsx": {
 		Sprite: Sprite,
-		Sprite$: Sprite$
+		Sprite$: Sprite$,
+		SequenceAnimationSprite: SequenceAnimationSprite,
+		SequenceAnimationSprite$: SequenceAnimationSprite$,
+		SequenceAnimationSprite$HALSequence$: SequenceAnimationSprite$HALSequence$
 	},
 	"jsx/lib/Stage.jsx": {
 		Stage: Stage,
@@ -607,9 +1090,25 @@ var $__jsx_classMap = {
 		Vector2$LVector2$: Vector2$LVector2$,
 		Vector2$NN: Vector2$NN
 	},
-	"system:lib/js/js.jsx": {
-		js: js,
-		js$: js$
+	"jsx/game/Course.jsx": {
+		Course: Course,
+		Course$F$LCanvasRenderingContext2D$LShape$V$: Course$F$LCanvasRenderingContext2D$LShape$V$
+	},
+	"jsx/game/Game.jsx": {
+		Game: Game,
+		Game$S: Game$S,
+		Const: Const,
+		Const$: Const$
+	},
+	"jsx/game/Obstacle.jsx": {
+		Obstacle: Obstacle,
+		Obstacle$NN: Obstacle$NN
+	},
+	"jsx/game/Racer.jsx": {
+		Racer: Racer,
+		Racer$NHALSequence$: Racer$NHALSequence$,
+		EnemyAI: EnemyAI,
+		EnemyAI$LRacer$: EnemyAI$LRacer$
 	}
 };
 

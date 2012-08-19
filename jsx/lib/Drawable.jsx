@@ -7,11 +7,13 @@ abstract class Drawable{
 	var pos: Vector2;
 	var scale: Vector2;
 	var angle: number;
+	var visible: boolean;
 
 	function constructor() {
 		this.pos = new Vector2(0,0);
 		this.scale = new Vector2(1,1);
 		this.angle = 0;
+		this.visible = true;
 	}
 
 	function updateCore(elapsedTime: number):void{
@@ -28,6 +30,9 @@ abstract class Drawable{
 	abstract function drawCore(ctx: CanvasRenderingContext2D): void;
 
 	function draw(ctx: CanvasRenderingContext2D): void{
+		if(!this.visible){
+			return;
+		}
 		var alpha = ctx.globalAlpha;
 		ctx.save();
 		ctx.globalAlpha *= this.alpha;
@@ -41,5 +46,9 @@ abstract class Drawable{
 		}
 		ctx.restore();
 		ctx.globalAlpha = alpha;
+	}
+	
+	function addChild(drawItem: Drawable):void{
+		this.childs.push(drawItem);
 	}
 }

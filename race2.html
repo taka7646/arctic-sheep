@@ -18,11 +18,43 @@
 		font-size: 16px;
 		font-weight: bold;
 	}
+	#canvas{
+	    width: 320px;
+	    height: 480px;
+	}
 </style>
+<script>
+    var images = [
+        {key: "usagi1", url: "img/usagi_1s.png"},
+        {key: "usagi2", url: "img/usagi_2s.png"},
+        {key: "sheep1", url: "img/hituji_1s.png"},
+        {key: "sheep2", url: "img/hituji_2s.png"}
+    ];
+    var sheepData = {
+        run: [
+            {time: 500, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}]},
+            {time: 500, parts: [{image:"sheep2",x:-84,y:-106,u:0,v:0,w:175,h:132}]},
+        ],
+        jump: [
+            {time: 500, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:Math.PI/6},
+            {time: 500, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:-Math.PI/8},
+        ],
+    };
+    var rabbitData = {
+        run: [
+            {time: 500, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}]},
+            {time: 500, parts: [{image:"usagi2",x:-78,y:-48,u:0,v:0,w:107,h:75}]},
+        ],
+        jump: [
+            {time: 500, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:Math.PI/6},
+            {time: 500, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:-Math.PI/8},
+        ],
+    };
+</script>
 </head>
 <body>
 <div id="content">
-	<canvas id="canvas"></canvas>
+	<canvas id="canvas" width="320" height="480"></canvas>
 	<div>
 	   <a href="#" id="jump" data-racer="0">ジャンプ！</a>
 	   <span id="scroll">

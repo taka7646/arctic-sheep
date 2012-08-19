@@ -10,6 +10,8 @@ class Stage{
 	var prevTime: number;
 	var nowTime: number;
 	var fps = 30;
+	var width: number;
+	var height: number;
 	var enterFrame: function():void;
 
 	function constructor() {
@@ -19,6 +21,8 @@ class Stage{
 
 	function constructor(id:string) {
 		this.canvas = dom.id(id) as HTMLCanvasElement;
+		this.width = this.canvas.width;
+		this.height = this.canvas.height;
 		this.drawItems = new Array.<Drawable>();
 		this.itemMap = new Map.<Drawable>();
 		var self = this;
@@ -33,6 +37,7 @@ class Stage{
 	}
 	
 	function start(): void{
+		log "start main loop.";
 		dom.window.setTimeout(this.enterFrame, this.fps/1000);
 	}
 	
@@ -55,6 +60,7 @@ class Stage{
 	
 	function draw(): void{
 		var ctx = this.canvas.getContext("2d") as CanvasRenderingContext2D;
+		ctx.clearRect(0,0,this.width, this.height);
 		for(var i=0; i < this.drawItems.length; i++){
 			var o = this.drawItems[i];
 			o.draw(ctx);
@@ -72,6 +78,6 @@ class Stage{
 		return this.itemMap[name];
 	}
 	function getImage(key: string): HTMLImageElement{
-		return this.imageMap[key];
+		return this.imageLoader.get(key);
 	}
 }
