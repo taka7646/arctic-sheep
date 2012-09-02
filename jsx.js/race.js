@@ -246,9 +246,9 @@ Drawable.prototype.draw$LCanvasRenderingContext2D$ = function (ctx) {
 	alpha = ctx.globalAlpha;
 	ctx.save();
 	ctx.globalAlpha *= this.alpha;
-	ctx.scale(this.scale.x, this.scale.y);
-	ctx.rotate(this.angle);
 	ctx.translate(this.pos.x, this.pos.y);
+	ctx.rotate(this.angle);
+	ctx.scale(this.scale.x, this.scale.y);
 	this.drawCore$LCanvasRenderingContext2D$(ctx);
 	for (i = 0; i < this.childs.length; i++) {
 		c = this.childs[i];
@@ -502,7 +502,7 @@ function Stage$() {
 	this.imageLoader = null;
 	this.prevTime = 0;
 	this.nowTime = 0;
-	this.fps = 30;
+	this.fps = 60;
 	this.width = 0;
 	this.height = 0;
 	this.enterFrame = null;
@@ -523,7 +523,7 @@ function Stage$S(id) {
 	this.imageLoader = null;
 	this.prevTime = 0;
 	this.nowTime = 0;
-	this.fps = 30;
+	this.fps = 60;
 	this.enterFrame = null;
 	this.canvas = (function (o) { return o instanceof HTMLCanvasElement ? o : null; })(dom$id$S(id));
 	this.width = this.canvas.width;
@@ -539,8 +539,11 @@ function Stage$S(id) {
 		elapsedTime = self.nowTime - self.prevTime;
 		self.update$N(elapsedTime);
 		self.draw$();
-		dom.window.setTimeout(self.enterFrame, self.fps / 1000);
+		dom.window.setTimeout(self.enterFrame, 1000 / self.fps);
 	});
+	this.canvas.addEventListener("click", (function (e) {
+		self.onClick$LEvent$(e);
+	}));
 };
 
 Stage$S.prototype = new Stage;
@@ -598,6 +601,12 @@ Stage.prototype.draw$ = function () {
 		o = this.drawItems[i];
 		o.draw$LCanvasRenderingContext2D$(ctx);
 	}
+};
+
+/**
+ * @param {Event} e
+ */
+Stage.prototype.onClick$LEvent$ = function (e) {
 };
 
 /**
@@ -672,6 +681,15 @@ function Vector2$NN(x, y) {
 };
 
 Vector2$NN.prototype = new Vector2;
+
+/**
+ * @param {!number} x
+ * @param {!number} y
+ */
+Vector2.prototype.set$NN = function (x, y) {
+	this.x = x;
+	this.y = y;
+};
 
 /**
  * @param {!number} x
@@ -782,6 +800,9 @@ Game.prototype = new Stage;
 function Game$S(id) {
 	Stage$S.call(this, id);
 	this.stage = null;
+	this.phase = "INIT";
+	this.counter = 0;
+	this.winner = - 1;
 	this.racers = new Array();
 	this.obstacles = new Array();
 	this.obstacles.push(new Array());
@@ -811,6 +832,8 @@ Game.prototype.initialize$ = function () {
 	var s;
 	/** @type {Object.<string, undefined|Array.<undefined|Sequence>>} */
 	var rabbitData;
+	/** @type {GameText} */
+	var text;
 	func = (function (ctx, self) {
 		/** @type {!number} */
 		var x;
@@ -850,15 +873,114 @@ Game.prototype.initialize$ = function () {
 		}
 	}
 	sheepData = (function (o) { return o instanceof Object ? o : null; })(js.global.sheepData);
-	s = new Racer$NHALSequence$(0, sheepData);
+	s = new Racer$NNHALSequence$(0, 1, sheepData);
 	s.changeSequence$S("run");
 	course.addChild$LDrawable$(s);
 	this.racers.push(s);
 	rabbitData = (function (o) { return o instanceof Object ? o : null; })(js.global.rabbitData);
-	s = new Racer$NHALSequence$(1, rabbitData);
+	s = new Racer$NNHALSequence$(1, 3, rabbitData);
 	s.changeSequence$S("run");
 	course.addChild$LDrawable$(s);
 	this.racers.push(s);
+	text = new GameText$();
+	this.add$SLDrawable$("text", text);
+	text.setText$SNS("スタート", 40, "#000");
+	text.pos.set$NN(160, 100);
+	this.changePhase$S("START");
+};
+
+/**
+ * @param {!string} phase
+ */
+Game.prototype.changePhase$S = function (phase) {
+	this.phase = phase;
+	this.counter = 0;
+};
+
+/**
+ */
+Game.prototype.checkGoal$ = function () {
+	/** @type {!boolean} */
+	var isGoal;
+	/** @type {!number} */
+	var i;
+	/** @type {Racer} */
+	var r;
+	/** @type {GameText} */
+	var text;
+	/** @type {GameText} */
+	var winText;
+	isGoal = false;
+	for (i = this.racers.length - 1; i >= 0; i--) {
+		r = this.racers[i];
+		if (r.racePos >= Const.COURSE_LENGTH) {
+			this.changePhase$S("GOAL");
+			isGoal = true;
+		}
+	}
+	if (isGoal) {
+		text = (function (o) { return o instanceof GameText ? o : null; })(this.get$S("text"));
+		text.setText$SNS("ゴール", 40, "#000");
+		text.show$();
+		winText = new GameText$();
+		winText.pos.set$NN(160, 140);
+		this.add$SLDrawable$("winText", winText);
+		if (this.racers[0].racePos >= this.racers[1].racePos) {
+			this.winner = 0;
+			winText.setText$SNS("かち", 30, "#000");
+		} else {
+			this.winner = 1;
+			winText.setText$SNS("まけ", 30, "#000");
+		}
+	}
+};
+
+/**
+ * @param {!number} elapsedTime
+ */
+Game.prototype.update$N = function (elapsedTime) {
+	switch (this.phase) {
+	case "START":
+		this.counter++;
+		if (this.counter >= 20) {
+			this.changePhase$S("INIT");
+		}
+		break;
+	case "INIT":
+		this.changePhase$S("RACE");
+		(function (o) { return o instanceof GameText ? o : null; })(this.get$S("text")).hide$();
+		break;
+	case "RACE":
+		this.checkGoal$();
+		break;
+	case "GOAL":
+		this.counter++;
+		if (this.counter === 30) {
+		}
+		if (this.counter >= 50) {
+			this.changePhase$S("END");
+		}
+		break;
+	}
+	Stage.prototype.update$N.call(this, elapsedTime);
+};
+
+/**
+ * @param {Event} e
+ */
+Game.prototype.onClick$LEvent$ = function (e) {
+	/** @type {Racer} */
+	var racer;
+	racer = this.racers[0];
+	switch (this.phase) {
+	case "RACE":
+		racer.doJump$();
+		break;
+	case "END":
+		dom.window.location.assign("room.html");
+		break;
+	}
+	e.preventDefault();
 };
 
 /**
@@ -872,6 +994,19 @@ Game.calcPosition$NNLVector2$ = function (coursePos, course, pos) {
 };
 
 var Game$calcPosition$NNLVector2$ = Game.calcPosition$NNLVector2$;
+
+/**
+ * @param {!number} id
+ * @return {CharParam}
+ */
+Game.getCharParam$N = function (id) {
+	/** @type {Object.<string, undefined|CharParam>} */
+	var params;
+	params = (function (o) { return o instanceof Object ? o : null; })(js.global.charParams);
+	return params[id + ""];
+};
+
+var Game$getCharParam$N = Game.getCharParam$N;
 
 /**
  * class Const extends Object
@@ -890,6 +1025,82 @@ function Const$() {
 Const$.prototype = new Const;
 
 /**
+ * class GameText extends Drawable
+ * @constructor
+ */
+function GameText() {
+}
+
+GameText.prototype = new Drawable;
+/**
+ * @constructor
+ */
+function GameText$() {
+	Drawable$.call(this);
+	this.text = "";
+	this.font = "";
+	this.family = "sans-serif";
+	this.size = 0;
+	this.color = "";
+	this.isVisible = true;
+	this.isBold = true;
+};
+
+GameText$.prototype = new GameText;
+
+/**
+ * @param {!string} text
+ * @param {!number} size
+ * @param {!string} color
+ */
+GameText.prototype.setText$SNS = function (text, size, color) {
+	this.setText$SNSS(text, size, color, this.family);
+};
+
+/**
+ * @param {!string} text
+ * @param {!number} size
+ * @param {!string} color
+ * @param {!string} fontFamily
+ */
+GameText.prototype.setText$SNSS = function (text, size, color, fontFamily) {
+	this.text = text;
+	this.size = size;
+	this.family = fontFamily;
+	this.color = color;
+	this.font = (this.size + "") + "px " + this.family;
+};
+
+/**
+ */
+GameText.prototype.show$ = function () {
+	this.isVisible = true;
+};
+
+/**
+ */
+GameText.prototype.hide$ = function () {
+	this.isVisible = false;
+};
+
+/**
+ * @param {CanvasRenderingContext2D} ctx
+ */
+GameText.prototype.drawCore$LCanvasRenderingContext2D$ = function (ctx) {
+	/** @type {!string} */
+	var font;
+	if (! this.isVisible) {
+		return;
+	}
+	font = (this.isBold ? "bold " + this.font : this.font);
+	ctx.fillStyle = this.color;
+	ctx.font = this.font;
+	ctx.textBaseline = 'top';
+	ctx.textAlign = "center";
+	ctx.fillText(this.text, 0, 0);
+};
+
+/**
  * class Obstacle extends Drawable
  * @constructor
  */
@@ -904,6 +1115,7 @@ Obstacle.prototype = new Drawable;
  */
 function Obstacle$NN(course, pos) {
 	Drawable$.call(this);
+	this.enable = true;
 	this.racePos = pos;
 	this.course = course;
 };
@@ -928,6 +1140,30 @@ Obstacle.prototype.drawCore$LCanvasRenderingContext2D$ = function (ctx) {
 };
 
 /**
+ * @param {!number} pos
+ * @return {!boolean}
+ */
+Obstacle.prototype.hitCheck$N = function (pos) {
+	/** @type {!number} */
+	var w;
+	/** @type {!number} */
+	var st;
+	/** @type {!number} */
+	var ed;
+	w = 16;
+	st = pos - w;
+	ed = pos + w;
+	if (! this.enable) {
+		return false;
+	}
+	if (ed < this.racePos || st > this.racePos) {
+		return false;
+	}
+	this.enable = false;
+	return true;
+};
+
+/**
  * class Racer extends SequenceAnimationSprite
  * @constructor
  */
@@ -938,11 +1174,11 @@ Racer.prototype = new SequenceAnimationSprite;
 /**
  * @constructor
  * @param {!number} course
+ * @param {!number} id
  * @param {Object.<string, undefined|Array.<undefined|Sequence>>} sequenceData
  */
-function Racer$NHALSequence$(course, sequenceData) {
+function Racer$NNHALSequence$(course, id, sequenceData) {
 	SequenceAnimationSprite$HALSequence$.call(this, sequenceData);
-	this.id = 0;
 	this.speed = 0;
 	this.accel = 0;
 	this.stamina = 0;
@@ -950,11 +1186,15 @@ function Racer$NHALSequence$(course, sequenceData) {
 	this.jy = 0;
 	this.damage = 0;
 	this.ai = null;
+	this.id = id;
 	this.racePos = 0;
 	this.course = course;
+	if (this.course === 1) {
+		this.ai = new EnemyAI$LRacer$(this);
+	}
 };
 
-Racer$NHALSequence$.prototype = new Racer;
+Racer$NNHALSequence$.prototype = new Racer;
 
 /**
  * @param {!number} elapsedTime
@@ -962,14 +1202,105 @@ Racer$NHALSequence$.prototype = new Racer;
 Racer.prototype.update$N = function (elapsedTime) {
 	/** @type {Game} */
 	var game;
+	/** @type {CharParam} */
+	var param;
 	game = (function (o) { return o instanceof Game ? o : null; })(js.global.stage);
+	param = Game$getCharParam$N(this.id);
+	switch (game.phase) {
+	case "INIT":
+		this.changeSequence$S("run");
+		this.speed = 0;
+		this.stamina = param.stamina;
+		break;
+	case "RACE":
+	case "GOAL":
+		this.updateRace$LGame$LCharParam$(game, param);
+		break;
+	}
+	this.updateJump$();
 	Game$calcPosition$NNLVector2$(this.racePos, this.course, this.pos);
+	this.pos.x += param.width;
+	this.pos.y -= this.jy;
 	SequenceAnimationSprite.prototype.update$N.call(this, elapsedTime);
 };
 
 /**
+ * @param {Game} game
+ * @param {CharParam} param
+ */
+Racer.prototype.hitCheck$LGame$LCharParam$ = function (game, param) {
+	/** @type {Array.<undefined|Obstacle>} */
+	var obstacles;
+	/** @type {!number} */
+	var i;
+	/** @type {Obstacle} */
+	var o;
+	obstacles = game.obstacles[this.course];
+	if (this.jump > 0) {
+		return;
+	}
+	for (i = obstacles.length - 1; i >= 0; i--) {
+		o = obstacles[i];
+		if (o.hitCheck$N(this.racePos - param.width)) {
+			this.speed = 0;
+			this.damage += 20;
+			this.stamina += 20;
+		}
+	}
+};
+
+/**
+ */
+Racer.prototype.updateJump$ = function () {
+	if (this.jump) {
+		this.jump++;
+		this.jy = Math.sin(this.jump * Math.PI / 30) * 64;
+		if (this.jump >= 30) {
+			this.jump = 0;
+			this.angle = 0;
+			this.changeSequence$S("run");
+		}
+	}
+};
+
+/**
+ * @param {Game} game
+ * @param {CharParam} param
+ */
+Racer.prototype.updateRace$LGame$LCharParam$ = function (game, param) {
+	if (this.ai) {
+		this.ai.update$();
+	}
+	this.hitCheck$LGame$LCharParam$(game, param);
+	if (this.damage > 0) {
+		this.damage--;
+	} else {
+		if (this.stamina > 0 || this.speed < 1) {
+			this.stamina--;
+			if (this.speed < param.maxSpeed) {
+				this.speed += (param.speed + this.accel) / 500;
+			}
+		} else {
+			if (this.speed > 1) {
+				this.speed = this.speed * (1 - 0.003);
+				this.accel *= 0.9;
+			}
+		}
+		this.racePos += this.speed;
+	}
+};
+
+/**
+ * @return {!boolean}
  */
 Racer.prototype.doJump$ = function () {
+	if (this.jump !== 0 || this.damage > 0) {
+		return false;
+	}
+	this.changeSequence$S("jump");
+	this.jump = 1;
+	this.accel += 10;
+	return true;
 };
 
 /**
@@ -1100,13 +1431,17 @@ var $__jsx_classMap = {
 		Const: Const,
 		Const$: Const$
 	},
+	"jsx/game/GameText.jsx": {
+		GameText: GameText,
+		GameText$: GameText$
+	},
 	"jsx/game/Obstacle.jsx": {
 		Obstacle: Obstacle,
 		Obstacle$NN: Obstacle$NN
 	},
 	"jsx/game/Racer.jsx": {
 		Racer: Racer,
-		Racer$NHALSequence$: Racer$NHALSequence$,
+		Racer$NNHALSequence$: Racer$NNHALSequence$,
 		EnemyAI: EnemyAI,
 		EnemyAI$LRacer$: EnemyAI$LRacer$
 	}

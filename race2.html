@@ -32,22 +32,24 @@
     ];
     var sheepData = {
         run: [
-            {time: 500, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}]},
-            {time: 500, parts: [{image:"sheep2",x:-84,y:-106,u:0,v:0,w:175,h:132}]},
+            {time: 250, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}]},
+            {time: 250, parts: [{image:"sheep2",x:-84,y:-106,u:0,v:0,w:175,h:132}]},
         ],
         jump: [
-            {time: 500, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:Math.PI/6},
-            {time: 500, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:-Math.PI/8},
+            {time: 250, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:Math.PI/6},
+            {time: 250, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:-Math.PI/8},
+            {time: 100, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:0},
         ],
     };
     var rabbitData = {
         run: [
-            {time: 500, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}]},
-            {time: 500, parts: [{image:"usagi2",x:-78,y:-48,u:0,v:0,w:107,h:75}]},
+            {time: 250, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}]},
+            {time: 250, parts: [{image:"usagi2",x:-78,y:-48,u:0,v:0,w:107,h:75}]},
         ],
         jump: [
-            {time: 500, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:Math.PI/6},
-            {time: 500, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:-Math.PI/8},
+            {time: 250, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:Math.PI/6},
+            {time: 250, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:-Math.PI/8},
+            {time: 100, parts: [{image:"usagi1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:0},
         ],
     };
 </script>
@@ -63,6 +65,7 @@
         </span>
 	</div>
 </div>
+<script type="text/javascript" src="js/data.js"></script>
 <script type="text/javascript" src="jsx.js/race.js"></script>
 <script>
     window.addEventListener("load", function(e) {

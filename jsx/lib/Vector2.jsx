@@ -14,6 +14,11 @@ class Vector2{
 		this.y = y;
 	}
 
+	function set(x:number, y:number):void {
+		this.x = x;
+		this.y = y;
+	}
+
 	function add(x:number, y:number):Vector2{
 		this.x += x;
 		this.y += y;

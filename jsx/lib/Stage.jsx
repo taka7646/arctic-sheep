@@ -9,7 +9,7 @@ class Stage{
 	var imageLoader: ImageLoader;
 	var prevTime: number;
 	var nowTime: number;
-	var fps = 30;
+	var fps = 60;
 	var width: number;
 	var height: number;
 	var enterFrame: function():void;
@@ -32,8 +32,11 @@ class Stage{
 			var elapsedTime = self.nowTime - self.prevTime;
 			self.update(elapsedTime);
 			self.draw();
-			dom.window.setTimeout(self.enterFrame, self.fps/1000);
+			dom.window.setTimeout(self.enterFrame, 1000/self.fps);
 		};
+		this.canvas.addEventListener("click", function(e:Event):void{
+			self.onClick(e);
+		});
 	}
 	
 	function start(): void{
@@ -65,6 +68,9 @@ class Stage{
 			var o = this.drawItems[i];
 			o.draw(ctx);
 		}
+	}
+	
+	function onClick(e:Event):void{
 	}
 	
 	function add(drawItem: Drawable): void{

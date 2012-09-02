@@ -2,7 +2,7 @@ import "js/web.jsx";
 import "Vector2.jsx";
 
 abstract class Drawable{
-	var childs = new  Array.<Drawable>();
+	var childs = new Array.<Drawable>();
 	var alpha = 1;
 	var pos: Vector2;
 	var scale: Vector2;
@@ -36,9 +36,9 @@ abstract class Drawable{
 		var alpha = ctx.globalAlpha;
 		ctx.save();
 		ctx.globalAlpha *= this.alpha;
-		ctx.scale(this.scale.x, this.scale.y);
-		ctx.rotate(this.angle);
 		ctx.translate(this.pos.x, this.pos.y);
+		ctx.rotate(this.angle);
+		ctx.scale(this.scale.x, this.scale.y);
 		this.drawCore(ctx);
 		for(var i=0; i < this.childs.length; i++){
 			var c = this.childs[i];

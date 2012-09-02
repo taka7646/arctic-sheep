@@ -6,6 +6,7 @@ import "Game.jsx";
 class Obstacle extends Drawable{
 	var racePos: number;
 	var course: number;
+	var enable = true;
 	
 	function constructor(course: number, pos: number){
 		super();
@@ -22,6 +23,22 @@ class Obstacle extends Drawable{
 		ctx.fillStyle = 'rgb(170, 170 , 170)';
 		ctx.arc(10,10,10, 0, 360, false);
 		ctx.fill();
+		
+	}
+	
+	function hitCheck(pos:number):boolean{
+		var w = 16;
+		var st = pos - w;
+		var ed = pos + w;
+		if(!this.enable){
+			return false;
+		}
+		if(ed < this.racePos || st > this.racePos){
+			return false;
+		}
+		// HIT!!
+		this.enable = false;
+		return true;
 		
 	}
 }
