@@ -22,6 +22,7 @@ var charParams = {
 		luck: 100,
 		prize: 1000,
 		width: 76,
+		_dataName: "sheepData",
 	},
 	2:{
 		id: 2,
@@ -33,6 +34,7 @@ var charParams = {
 		luck: 80,
 		prize: 1000,
 		width: 60,
+		_dataName: "cowData",
 	},
 	3:{
 		id: 3,
@@ -44,6 +46,7 @@ var charParams = {
 		luck: 90,
 		prize: 1000,
 		width: 64,
+		_dataName: "rabbitData",
 	},
 };
 
@@ -99,4 +102,48 @@ var rabbitSequence = {
    		],
 };
 
-
+var charUtil = {
+	saveKey: "character",
+	createParam: function createParam(id){
+		var base = charParams[id];
+		var param = {
+			exp: 0,
+			money: 0,
+			level: 1,
+		};
+		
+		for(name in base){
+			if(name.indexOf("_") == 0){
+				continue;
+			}
+			param[name] = base[name];
+		}
+		return param;
+	},
+	
+	save: function save(key, data){
+		var s = JSON.stringify(data);
+		localStorage.setItem(key, s);
+		//console.log(s);
+	},
+	
+	load: function load(key){
+		var s = localStorage.getItem(key);
+		//console.log(s);
+		return JSON.parse(s);
+	},
+	
+	saveChar: function saveChar(data){
+		var key = this.saveKey + "00";
+		this.save(key, data);
+	},
+	loadChar: function loadChar(){
+		var key = this.saveKey + "00";
+		var o = this.load(key);
+		if(!o){
+			o = this.createParam(1);
+			this.saveChar(o);
+		}
+		return o;
+	},
+};

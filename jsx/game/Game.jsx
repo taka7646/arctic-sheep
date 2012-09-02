@@ -55,9 +55,11 @@ class Game extends Stage{
 			}
 		}
 
-
-		var sheepData = js.global["sheepData"] as Map.<Array.<Sequence>>;
-		var s = new Racer(0, 1, sheepData);
+		var rp = js.global["racerParams"] as Array.<CharParam>;
+		var param = rp[0];
+		var base = Game.getCharParamBase(param.id);
+		var sheepData = js.global[base._dataName] as Map.<Array.<Sequence>>;
+		var s = new Racer(0, param.id, sheepData);
 		s.changeSequence("run");
 		course.addChild(s);
 		this.racers.push(s);
@@ -158,10 +160,18 @@ class Game extends Stage{
 		pos.y = course * Const.COURSE_H + Const.COURSE_Y + Const.COURSE_H;
 	}
 	
-	static function getCharParam(id:number):CharParam{
-		var params = js.global["charParams"] as Map.<CharParam>;
+	static function getCharParamBase(id:number):CharParamBase{
+		var params = js.global["charParams"] as Map.<CharParamBase>;
 		return params[id as string];
 	}
+
+	static function getCharParam():CharParam{
+		var rp = js.global["racerParams"] as Array.<CharParam>;
+		var param = rp[0];
+		return param;
+	}
+
+
 }
 
 class Const{
@@ -170,6 +180,19 @@ class Const{
 	static var COURSE_H = 120;
 	static var COURSE_LENGTH = 1500;
 	static var SCREEN_W = 320;
+}
+
+native class CharParamBase{
+	var id: number;
+	var name: string;
+	var life: number;
+	var speed: number;
+	var maxSpeed: number;
+	var stamina: number;
+	var luck: number;
+	var prize: number;
+	var width: number;
+	var _dataName: string;
 }
 
 native class CharParam{
@@ -182,4 +205,9 @@ native class CharParam{
 	var luck: number;
 	var prize: number;
 	var width: number;
+	//
+	var level: number;
+	var exp: number;
+	var money: number;
 }
+

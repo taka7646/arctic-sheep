@@ -826,6 +826,14 @@ Game.prototype.initialize$ = function () {
 	var p;
 	/** @type {Obstacle} */
 	var o;
+	/** @type {CharParamBase} */
+	var prrr;
+	/** @type {Array.<undefined|CharParam>} */
+	var rp;
+	/** @type {CharParam} */
+	var param;
+	/** @type {CharParamBase} */
+	var base;
 	/** @type {Object.<string, undefined|Array.<undefined|Sequence>>} */
 	var sheepData;
 	/** @type {Racer} */
@@ -872,8 +880,12 @@ Game.prototype.initialize$ = function () {
 			this.obstacles[i].push(o);
 		}
 	}
-	sheepData = (function (o) { return o instanceof Object ? o : null; })(js.global.sheepData);
-	s = new Racer$NNHALSequence$(0, 1, sheepData);
+	prrr = Game$getCharParamBase$N(1);
+	rp = (function (o) { return o instanceof Array ? o : null; })(js.global.racerParams);
+	param = rp[0];
+	base = Game$getCharParamBase$N(param.id);
+	sheepData = (function (o) { return o instanceof Object ? o : null; })(js.global[base._dataName]);
+	s = new Racer$NNHALSequence$(0, param.id, sheepData);
 	s.changeSequence$S("run");
 	course.addChild$LDrawable$(s);
 	this.racers.push(s);
@@ -997,16 +1009,28 @@ var Game$calcPosition$NNLVector2$ = Game.calcPosition$NNLVector2$;
 
 /**
  * @param {!number} id
- * @return {CharParam}
+ * @return {CharParamBase}
  */
-Game.getCharParam$N = function (id) {
-	/** @type {Object.<string, undefined|CharParam>} */
+Game.getCharParamBase$N = function (id) {
+	/** @type {Object.<string, undefined|CharParamBase>} */
 	var params;
 	params = (function (o) { return o instanceof Object ? o : null; })(js.global.charParams);
 	return params[id + ""];
 };
 
-var Game$getCharParam$N = Game.getCharParam$N;
+var Game$getCharParamBase$N = Game.getCharParamBase$N;
+
+/**
+ * @return {CharParam}
+ */
+Game.getCharParam$ = function () {
+	/** @type {*} */
+	var param;
+	param = js.global.myParam;
+	return (function (o) { return o instanceof CharParam ? o : null; })(param);
+};
+
+var Game$getCharParam$ = Game.getCharParam$;
 
 /**
  * class Const extends Object
@@ -1202,10 +1226,10 @@ Racer$NNHALSequence$.prototype = new Racer;
 Racer.prototype.update$N = function (elapsedTime) {
 	/** @type {Game} */
 	var game;
-	/** @type {CharParam} */
+	/** @type {CharParamBase} */
 	var param;
 	game = (function (o) { return o instanceof Game ? o : null; })(js.global.stage);
-	param = Game$getCharParam$N(this.id);
+	param = Game$getCharParamBase$N(this.id);
 	switch (game.phase) {
 	case "INIT":
 		this.changeSequence$S("run");
@@ -1214,7 +1238,7 @@ Racer.prototype.update$N = function (elapsedTime) {
 		break;
 	case "RACE":
 	case "GOAL":
-		this.updateRace$LGame$LCharParam$(game, param);
+		this.updateRace$LGame$LCharParamBase$(game, param);
 		break;
 	}
 	this.updateJump$();
@@ -1226,9 +1250,9 @@ Racer.prototype.update$N = function (elapsedTime) {
 
 /**
  * @param {Game} game
- * @param {CharParam} param
+ * @param {CharParamBase} param
  */
-Racer.prototype.hitCheck$LGame$LCharParam$ = function (game, param) {
+Racer.prototype.hitCheck$LGame$LCharParamBase$ = function (game, param) {
 	/** @type {Array.<undefined|Obstacle>} */
 	var obstacles;
 	/** @type {!number} */
@@ -1250,6 +1274,19 @@ Racer.prototype.hitCheck$LGame$LCharParam$ = function (game, param) {
 };
 
 /**
+ * @return {!boolean}
+ */
+Racer.prototype.doJump$ = function () {
+	if (this.jump !== 0 || this.damage > 0) {
+		return false;
+	}
+	this.changeSequence$S("jump");
+	this.jump = 1;
+	this.accel += 10;
+	return true;
+};
+
+/**
  */
 Racer.prototype.updateJump$ = function () {
 	if (this.jump) {
@@ -1265,13 +1302,13 @@ Racer.prototype.updateJump$ = function () {
 
 /**
  * @param {Game} game
- * @param {CharParam} param
+ * @param {CharParamBase} param
  */
-Racer.prototype.updateRace$LGame$LCharParam$ = function (game, param) {
+Racer.prototype.updateRace$LGame$LCharParamBase$ = function (game, param) {
 	if (this.ai) {
 		this.ai.update$();
 	}
-	this.hitCheck$LGame$LCharParam$(game, param);
+	this.hitCheck$LGame$LCharParamBase$(game, param);
 	if (this.damage > 0) {
 		this.damage--;
 	} else {
@@ -1288,19 +1325,6 @@ Racer.prototype.updateRace$LGame$LCharParam$ = function (game, param) {
 		}
 		this.racePos += this.speed;
 	}
-};
-
-/**
- * @return {!boolean}
- */
-Racer.prototype.doJump$ = function () {
-	if (this.jump !== 0 || this.damage > 0) {
-		return false;
-	}
-	this.changeSequence$S("jump");
-	this.jump = 1;
-	this.accel += 10;
-	return true;
 };
 
 /**

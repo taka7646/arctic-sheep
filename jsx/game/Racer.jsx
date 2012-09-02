@@ -27,7 +27,7 @@ class Racer extends SequenceAnimationSprite{
 
 	override function update(elapsedTime: number): void{
 		var game = js.global["stage"] as Game;
-		var param = Game.getCharParam(this.id);
+		var param = Game.getCharParamBase(this.id);
 		switch(game.phase){
 			case "INIT":
 				this.changeSequence("run");
@@ -45,7 +45,12 @@ class Racer extends SequenceAnimationSprite{
 		this.pos.y -= this.jy;
 		super.update(elapsedTime);
 	}
-	function hitCheck(game:Game, param:CharParam):void{
+	
+	/**
+	 * 障害物とのコリジョン
+	 * @param {Object} game
+	 */
+	function hitCheck(game:Game, param:CharParamBase):void{
 		var obstacles = game.obstacles[this.course];
 		if(this.jump > 0){
 			return;
@@ -59,9 +64,24 @@ class Racer extends SequenceAnimationSprite{
 				this.stamina += 20;
 			}
 		}
-		
 	}
 	
+	/**
+	 * ジャンプ開始処理
+	 */
+	function doJump():boolean{
+		if(this.jump != 0 || this.damage > 0){
+			return false;
+		}
+		this.changeSequence("jump");
+		this.jump = 1;
+		this.accel += 10;
+		return true;
+	}
+
+	/**
+	 * ジャンプ中処理
+	 */
 	function updateJump():void{
 		if(this.jump){
 			this.jump++;
@@ -74,7 +94,7 @@ class Racer extends SequenceAnimationSprite{
 		}
 	}
 	
-	function updateRace(game:Game, param:CharParam):void{
+	function updateRace(game:Game, param:CharParamBase):void{
 		if(this.ai){
 			this.ai.update();
 		}
@@ -96,17 +116,8 @@ class Racer extends SequenceAnimationSprite{
 			this.racePos += this.speed;
 		}
 	}
-	
-	function doJump():boolean{
-		if(this.jump != 0 || this.damage > 0){
-			return false;
-		}
-		this.changeSequence("jump");
-		this.jump = 1;
-		this.accel += 10;
-		return true;
-	}
-}
+}	
+
 
 class EnemyAI{
 	var owner: Racer;

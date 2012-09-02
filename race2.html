@@ -28,7 +28,9 @@
         {key: "usagi1", url: "img/usagi_1s.png"},
         {key: "usagi2", url: "img/usagi_2s.png"},
         {key: "sheep1", url: "img/hituji_1s.png"},
-        {key: "sheep2", url: "img/hituji_2s.png"}
+        {key: "sheep2", url: "img/hituji_2s.png"},
+        {key: "cow1", url: "img/ushi_1s.png"},
+        {key: "cow2", url: "img/ushi_2s.png"},
     ];
     var sheepData = {
         run: [
@@ -39,6 +41,17 @@
             {time: 250, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:Math.PI/6},
             {time: 250, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:-Math.PI/8},
             {time: 100, parts: [{image:"sheep1",x:-84,y:-106,u:0,v:0,w:169,h:132}],angle:0},
+        ],
+    };
+    var cowData = {
+        run: [
+            {time: 250, parts: [{image:"cow1",x:-78,y:-70,u:0,v:0,w:134,h:104}]},
+            {time: 250, parts: [{image:"cow2",x:-78,y:-48,u:0,v:0,w:107,h:75}]},
+        ],
+        jump: [
+            {time: 250, parts: [{image:"cow1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:Math.PI/6},
+            {time: 250, parts: [{image:"cow1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:-Math.PI/8},
+            {time: 100, parts: [{image:"cow1",x:-78,y:-70,u:0,v:0,w:134,h:104}],angle:0},
         ],
     };
     var rabbitData = {
@@ -68,7 +81,10 @@
 <script type="text/javascript" src="js/data.js"></script>
 <script type="text/javascript" src="jsx.js/race.js"></script>
 <script>
+    var racerParams;
     window.addEventListener("load", function(e) {
+        var myParam = charUtil.loadChar();
+        racerParams = [myParam];
         JSX.require("jsx/race.jsx")._Main.main$AS([]);
     });
 </script>
