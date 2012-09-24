@@ -179,7 +179,7 @@ dom.createElement$S = function (tag) {
 	return (function (v) {
 		if (! (v == null || v instanceof HTMLElement)) {
 			debugger;
-			throw new Error("[C:/Users/taka/AppData/Roaming/npm/node_modules/jsx/lib/js/js/web.jsx:59] detected invalid cast, value is not an instance of the designated type or null");
+			throw new Error("[c:/Users/taka/AppData/Roaming/npm/node_modules/jsx/lib/js/js/web.jsx:59] detected invalid cast, value is not an instance of the designated type or null");
 		}
 		return v;
 	}(dom.document.createElement(tag)));
@@ -826,8 +826,6 @@ Game.prototype.initialize$ = function () {
 	var p;
 	/** @type {Obstacle} */
 	var o;
-	/** @type {CharParamBase} */
-	var prrr;
 	/** @type {Array.<undefined|CharParam>} */
 	var rp;
 	/** @type {CharParam} */
@@ -880,7 +878,6 @@ Game.prototype.initialize$ = function () {
 			this.obstacles[i].push(o);
 		}
 	}
-	prrr = Game$getCharParamBase$N(1);
 	rp = (function (o) { return o instanceof Array ? o : null; })(js.global.racerParams);
 	param = rp[0];
 	base = Game$getCharParamBase$N(param.id);
@@ -1024,10 +1021,13 @@ var Game$getCharParamBase$N = Game.getCharParamBase$N;
  * @return {CharParam}
  */
 Game.getCharParam$ = function () {
-	/** @type {*} */
+	/** @type {Array.<undefined|CharParam>} */
+	var rp;
+	/** @type {CharParam} */
 	var param;
-	param = js.global.myParam;
-	return (function (o) { return o instanceof CharParam ? o : null; })(param);
+	rp = (function (o) { return o instanceof Array ? o : null; })(js.global.racerParams);
+	param = rp[0];
+	return param;
 };
 
 var Game$getCharParam$ = Game.getCharParam$;
@@ -1392,7 +1392,7 @@ $__jsx_lazy_init(dom, "document", function () {
 	return (function (v) {
 		if (! (v == null || v instanceof HTMLDocument)) {
 			debugger;
-			throw new Error("[C:/Users/taka/AppData/Roaming/npm/node_modules/jsx/lib/js/js/web.jsx:31] detected invalid cast, value is not an instance of the designated type or null");
+			throw new Error("[c:/Users/taka/AppData/Roaming/npm/node_modules/jsx/lib/js/js/web.jsx:31] detected invalid cast, value is not an instance of the designated type or null");
 		}
 		return v;
 	}(js.global.document));

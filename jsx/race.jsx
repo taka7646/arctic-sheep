@@ -13,7 +13,6 @@ class _Main {
 		game.loadImage(images);
 		var params = js.global["params"] as Map.<variant>;
 		game.initialize();
-
 	}
 }
 
