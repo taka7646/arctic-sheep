@@ -108,7 +108,7 @@ var charUtil = {
 		var base = charParams[id];
 		var param = {
 			exp: 0,
-			money: 0,
+			money: 1000,
 			level: 1,
 		};
 		
@@ -145,5 +145,15 @@ var charUtil = {
 			this.saveChar(o);
 		}
 		return o;
+	},
+	viewStatus: function viewStatus($div, data){
+		$div.find("span.lv").text(data.level);
+		$div.find("span.money").text(this.addFigure(data.money));
+	},
+	
+	addFigure: function addFigure(str) {
+		var num = new String(str).replace(/,/g, "");
+		while(num != (num = num.replace(/^(-?\d+)(\d{3})/, "$1,$2")));
+		return num;
 	},
 };

@@ -919,28 +919,35 @@ Game.prototype.checkGoal$ = function () {
 	var text;
 	/** @type {GameText} */
 	var winText;
+	/** @type {CharParam} */
+	var param;
 	isGoal = false;
 	for (i = this.racers.length - 1; i >= 0; i--) {
 		r = this.racers[i];
 		if (r.racePos >= Const.COURSE_LENGTH) {
-			this.changePhase$S("GOAL");
 			isGoal = true;
+			break;
 		}
 	}
 	if (isGoal) {
+		this.changePhase$S("GOAL");
 		text = (function (o) { return o instanceof GameText ? o : null; })(this.get$S("text"));
 		text.setText$SNS("ゴール", 40, "#000");
 		text.show$();
 		winText = new GameText$();
 		winText.pos.set$NN(160, 140);
 		this.add$SLDrawable$("winText", winText);
+		param = Game$getCharParam$();
 		if (this.racers[0].racePos >= this.racers[1].racePos) {
 			this.winner = 0;
 			winText.setText$SNS("かち", 30, "#000");
+			param.money += 100;
 		} else {
 			this.winner = 1;
 			winText.setText$SNS("まけ", 30, "#000");
+			param.money += 50;
 		}
+		Game$save$LCharParam$(param);
 	}
 };
 
@@ -1031,6 +1038,18 @@ Game.getCharParam$ = function () {
 };
 
 var Game$getCharParam$ = Game.getCharParam$;
+
+/**
+ * @param {CharParam} param
+ */
+Game.save$LCharParam$ = function (param) {
+	/** @type {CharUtil} */
+	var util;
+	util = js.global.charUtil;
+	util.saveChar(param);
+};
+
+var Game$save$LCharParam$ = Game.save$LCharParam$;
 
 /**
  * class Const extends Object

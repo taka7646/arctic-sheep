@@ -87,8 +87,8 @@ class Game extends Stage{
 		for(var i=this.racers.length-1;i>=0;i--){
 			var r = this.racers[i];
 			if(r.racePos >= Const.COURSE_LENGTH){
-				this.changePhase("GOAL");
 				isGoal = true;
+				break;
 				// var m = new arc.display.TextField();
 				// m.setAlign(arc.display.Align.CENTER);
 				// m.setText("ゴール!!");
@@ -99,19 +99,24 @@ class Game extends Stage{
 			}
 		}
 		if(isGoal){
+			this.changePhase("GOAL");
 			var text = this.get("text") as GameText;
 			text.setText("ゴール", 40, "#000");
 			text.show();
 			var winText = new GameText();
 			winText.pos.set(160, 140);
 			this.add("winText", winText);
+			var param = Game.getCharParam();
 			if(this.racers[0].racePos >= this.racers[1].racePos){
 				this.winner = 0;
 				winText.setText("かち", 30, "#000");
+				param.money += 100;
 			}else{
 				this.winner = 1;
 				winText.setText("まけ", 30, "#000");
+				param.money += 50;
 			}
+			Game.save(param);
 		}
 		
 	}
@@ -170,7 +175,10 @@ class Game extends Stage{
 		var param = rp[0];
 		return param;
 	}
-
+	static function save(param:CharParam): void{
+		var util = js.global["charUtil"] as __noconvert__ CharUtil;
+		util.saveChar(param);
+	}
 
 }
 
@@ -211,3 +219,8 @@ native class CharParam{
 	var money: number;
 }
 
+native final __fake__ class CharUtil{
+	var saveKey: string;
+
+	function saveChar(param: CharParam): void;
+}
