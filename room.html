@@ -62,7 +62,7 @@
 <script type="text/javascript" src="js/room.js"></script>
 <script type="text/javascript" src="socket.io/socket.io.js"></script>
 <script>
-    var socket = io.connect('http://taka-PC:8000');
+    var socket = io.connect();
     socket.on('msg push', onData);
     socket.on('msg', onData);
     
