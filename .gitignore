@@ -1,4 +1,3 @@
-jsx.js/*.js
-
+jsx.js/*.mapping
 err
-
+node_modules

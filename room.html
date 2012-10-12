@@ -50,10 +50,41 @@
                                     お金:<span class="money"></span>円
             </div>
 		</div>
+		<form id="chat">
+		    <input type="text" name="msg" value=""/>
+		    <input type="submit" value="送信"/>
+		</form>
+		<dl id="message"></dl>
     </article>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/data.js"></script>
 <script type="text/javascript" src="js/room.js"></script>
+<script type="text/javascript" src="socket.io/socket.io.js"></script>
+<script>
+    var socket = io.connect('http://taka-PC:8000');
+    socket.on('msg push', onData);
+    socket.on('msg', onData);
+    
+    function onData(data){
+        var msg = '';
+        if(data.user){
+            msg += data.user + ':';
+        }
+        msg += data.msg;
+       $("#message").prepend('<dd>'+msg+'<dd>');
+    }
+    $('#chat').submit(function(e){
+        e.preventDefault();
+        var $form = $(this);
+        var $msg = $form.find('input[name=msg]');
+        var data = {
+            user: "me",
+            msg: $msg.val(),
+        };
+        socket.emit('all', data);
+        $msg.val('');
+    });
+</script>
 </body>
 </html>
